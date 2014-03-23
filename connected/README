@@ -4,6 +4,31 @@ Tiva C Launchpad Bare Metal Examples
 This directory tree is for the "connected" launchpad.  The fancier one
 with the ethernet connector on it.  currently called the EK-TM4C1294XL
 
+As of this writing you start at
 
+http://ti.com/launcpad
 
+then click on the Tiva C series launchpads picture.  then click on the
+EK-TM4C1294XL a.k.a Tiva C Series Connected LaunchPad picture
+
+Under specs you will want to go to both links the TK-TM4C1294XL link
+under Part Number.  And on the right column under Featured
+Microcontroller the TM4C1294NCPDT link.
+
+For the board (TK-TM4C1294XL) link under User Guides there is one
+document spmu365 (not called that on the page).
+http://www.ti.com/lit/pdf/spmu365
+
+For the microcontroller link (TM4C1294NCPDT) you will want the data
+sheet, the first link not necessarily the errata but you may want
+to get those as well.
+http://www.ti.com/lit/gpn/tm4c1294ncpdt
+
+The board documentation ends with a schematic from which we can for
+example see that there are two leds D1 and D2 on port pins PN0 and PN1.
+
+Start with blinker01 to blink the leds.
+
+See the top level README for information on downloading programs to
+the microcontroller using lm4flash.
 

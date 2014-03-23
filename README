@@ -13,3 +13,29 @@ a launchpad dir for the original and connected for the new connected
 one.
 
 
+For both boards as of this writing I use the lm4flash utility (Linux)
+to program the boards.
+
+apt-get install libusb-1.0.0-dev build-essential
+git clone http://github.com/utzig/lm4tools.git
+cd lm4tools/lm4flash
+make
+
+Then use the lmflash tool by adding it to your path, making a symlink
+to it from somewhere in the path (/usr/local/bin) etc.
+
+/path/lm4flash myprogram.bin
+
+I have a build_gcc repository from which you can use build_gcc to
+build a gnu toolchain which will build all of these examples.  or you
+can go to codesourcery.com which is now mentor graphics, and find
+the lite version of their tools (no time limit, look around you will
+find it).  Or go here https://launchpad.net/gcc-arm-embedded and
+get pre-built tools.  There are many other folks maintaining cross
+compiler toolchains that will also work.  My programs are not
+specific to a -linux-gnueabi- or -none-eabi- gnu build, just needs
+to be an arm gnu cross compiler.
+
+I may also have the option to use the llvm clang compiler in the
+Makefiles.  my build_gcc repository has a build_clang script that
+will build llvm and clang from sources.

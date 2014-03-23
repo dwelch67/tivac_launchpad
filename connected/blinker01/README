@@ -1,0 +1,19 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.
+
+This connected launchpad board has two leds.  From the schematics
+you can see that one is on PN0 and the other connected to PN1.
+
+The GPIO section of the datasheet clearly lays out the procedure for
+initializing a GPIO port, enabling clocks to the port so that the logic
+is running, then configuring the individual port pins, input or output
+pull up or down or neither, alternate functions, etc.
+
+There is an interesting feature with this design that allows you to
+write to the GPIODATA register in a masked fasion so that the write
+only targets certain bits (pins) and leaves the others unchanged.  I
+have used that feature in this example.
+
+By changing the hardcoded value in the dowait() function you can
+change the frequency of the blinking.
