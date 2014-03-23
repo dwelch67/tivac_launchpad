@@ -1,0 +1,38 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+This expands on the blinker01 example.  This example uses the SysTick
+timer to more accurately control the time between led blink events.
+
+These leds are very painful on my eyes so I have the leds blink breifly
+over some measured time, just enough that I can measure that time with
+a stopwatch and figure out the clock rate for the timer.
+
+I hate it when they do this but the datasheet for the microcontroller
+says that there is a 16Mhz internal oscillator.  The schematics for the
+board show an external 16Mhz oscillator.  My experiment left here as
+an example uses the 24 systick timer set to run using the system clock
+(basically the Cortex-M4's clock).  I count to one million clock cycles
+160 times or basically 160,000,000 clock cycles (more than 24 bits
+thus the need to break it into multiple individual measurements), then
+I blink the led.  If the timer is running at 16,000,000Hz this would
+be one blink every 10 seconds and that is what I see.
+
+Is it using the PIOSC or MOSC?  We dont know that yet, I assume the
+PIOSC (precision internal oscillator).
+
+Note that this SysTick timer is part of the ARM Cortex-m4 logic not
+the ti stellaris logic that surrounds it.  Ti tends to do a good job
+in their documents giving you a list of steps for bringing up a particular
+peripheral.  Chip vendors that use ARM cores dont normally include too
+much detail about the arm core, they tend to direct you to ARM's website
+to get ARM's documents.  The cortex-m4 trm (technical reference manual)
+will also explain the SysTick timer and registers.  Ti happens to have
+also described them in their datasheet, plus the few steps for starting
+the timer.  Because it is part of the ARM core it doesnt have a clock
+disable like the gpio so you dont have to go into that register space
+to turn on the timer.  When we get to the ti logic we will get into
+timers that no doubt have enables we have to turn on and are likely
+a lot more complicated than the systick timer.

@@ -1,0 +1,20 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+Derived from uart03.  This uses the timer0 32/64 bit timer in 32 bit
+mode.  Using a preload of 0xFFFFFFFF the timer(s) can basically free
+run.  I have set both the A and B timers (32 bits each) to count down
+from 16 million.  Without a prescaler that would be one rollover per
+second.  Timer A is not using a prescaler.  Timer B is set to divide
+by 4 so for every 4 roll overs of timer A you get one roll over of
+timer B.  Because this is polling the output may look a little strange
+sometimes you get three A roll overs to one B and sometimes 4 A roll
+overs to one B.  On average though it is a 4 to one.  change the prescaler
+on B and the ratio changes accordingly.
+
+This example is not about comparing timer a and timer b, but showing
+that you can have two 32 bit timers within one timer module (timer0) and
+that to use the "true prescaler" you need to be either in 16 bit mode
+with the 16/32 bit timer or 32 bit mode with the 32/64 bit timer.

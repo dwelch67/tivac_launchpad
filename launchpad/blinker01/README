@@ -1,0 +1,47 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.
+
+The launchpad board has an RGB led which looks like a single led but
+has three LEDs in the same diffuser, one red, one green, one blue.
+From a software perspective you treat them as three separate leds as
+they are on three separate GPIO pins.  But the LED outputs combine
+visually so that you can make different colors.
+
+In order to make colors you need to change the overall percieved
+intensity for each of the leds separately.  For example if you were
+to turn on the read and blue and leave those gpio lines on then you
+would get purple.  if you were to put red on full but pulse the blue
+such that it is being fed a 50% duty cycle clock (on half the time, off
+half the time) at a rate that is faster than your eye can percieve then
+the blue would be half of the full intensity and the mixture of full
+red and half blue would make a different color.
+
+This very simple example turns the leds all on or all off, making white
+or off.  The duration of the blinks is determined by a simple loop
+that counts to some number wasting cpu time.  The call to the dummy()
+function is to prevent the optimizer in the compiler from removing
+the timing loop completely from the resulting program.  It also burns
+a few more clocks with the disruption of a function call (branch and
+return).
+
+These leds are very painful for my eyes, you may be fine with it,
+so instead of blinking forever I have it only blink a few times then
+stop with the leds off.
+
+By changing the hardcoded value in the dowait() function you can
+change the frequency of the blinking.
+
+From the schematics you can see that the Red led is connected to GPIO
+port PF1, the Blue PF2 and the Green PF3.
+
+The GPIO section of the datasheet clearly lays out the procedure for
+initializing a GPIO port, enabling clocks to the port so that the logic
+is running, then configuring the individual port pins, input or output
+pull up or down or neither, alternate functions, etc.
+
+There is an interesting feature with this design that allows you to
+write to the GPIODATA register in a masked fasion so that the write
+only targets certain bits (pins) and leaves the others unchanged.  I
+have used that feature in this example.
+

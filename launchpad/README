@@ -1,0 +1,90 @@
+
+
+Tiva C Launchpad Bare Metal Examples
+
+This directory tree is for the simpler launchpad.  Not the connected
+one, the one that does not have the ethernet connector.  currently
+called the EK-TM4C123GXL
+
+Over time I hope to re-write this.  At the time ti still used the
+stellaris name for the cortex-m family, now they use Tiva C instead.
+
+
+
+
+
+
+
+
+
+
+
+
+
+After a long wait while they were out of stock I finally received my
+stellaris launchpad today from ti.
+
+http://ti.com/stellaris-launchpad
+
+The documentation starts here
+
+http://www.ti.com/tool/ek-lm4f120xl
+
+You want the Stellaris LM4F120 LaunchPad Evaluation Kit User's Manual
+
+http://www.ti.com/litv/pdf/spmu289a
+
+And the datasheet for the LM4F120H5QR microcontroller
+
+http://www.ti.com/product/lm4f120h5qr
+
+TODO fill in links to arm docs.
+
+The users manual for the launchpad includes the schematics.
+
+
+Note that the Stellaris product which is now under ti used to be from
+a company named Luminary Micro, which is why you see LM in the part numbers
+or at least that is my theory, I do not and have never worked for either
+company.
+
+
+I use linux (at the moment Linux Mint), there is a utility out there
+that allows you to program these stellaris parts.  Here are the
+steps I had to use to compile the utility, you might need to install
+other packages.
+
+
+apt-get install libusb-1.0.0-dev build-essential
+
+git clone http://github.com/utzig/lm4tools.git
+cd lm4tools/lm4flash
+make
+
+I am using the micro usb port on the top of the board which is labelled
+debug.  And I slide the switch on the board over to the debug side.
+
+Then I can load and run a new program using this command
+
+/path/to/lm4flash hello.bin
+
+The program is stored in the on chip flash so pressing the reset button
+or unplugging and replugging power (the usb port) the program will
+start or run again.
+
+I recommend you start with the blinker01 example.  My raspberrypi and
+mbed repos attempt to describe the bare metal approach that I use and
+how I use the gnu tools.  The blinker01 example and perhaps others as
+I write them also demonstrate the use of llvm+clang.  Llvm 3.1 adds
+a new feature where the backend conversion from bytecode to target code
+(generic internal stuff to ARM specific instructions) can now be assembled
+and output as an object file.  Prior to this the output was assembly
+language and you needed and assembler to get to object code.  Even with
+llvm+clang I use the gnu binutils tools for assembling as needed and
+for linking.
+
+Over time there will be more blinker examples as I explore the different
+timers in the system and use them to measure time more accurately.
+Eventually will add a uart example or a few and so on as I go through
+the peripherals I am interested in.
+

@@ -1,0 +1,14 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+Derived from uart04.
+
+Experiments related to the svc/swi instruction, as with interrupts I
+discourage the use of interrupts or svc/swi unless you really have a
+good reason.  And if you do use svc/swi perhaps this example demonstrates
+that you want to avoid using the immediate in the instruction.
+
+
+

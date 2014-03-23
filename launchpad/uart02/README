@@ -1,0 +1,8 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+Derived from uart01.  This is a good uart baseline, uart init, send,
+receive.  This example echos whatever is received.
+

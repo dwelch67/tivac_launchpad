@@ -1,0 +1,16 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+Derived from uart02.  This uses the timer0 16/32 bit timer in 32 bit
+mode.  The timer can free run, just like the systick timer in the arm
+core.  Like the blinker02 example this does not use it purely as a free
+running timer, but instead has a load value of 32 million so that it
+rolls over every 2 seconds (assuming/using a 16MHz clock).  The raw
+interrupt status is polled (interrupts are not enabled/used) to see
+the roll over and prints something out the uart.  The leds are so
+painful on the (my) eyes that I wont use them.
+
+I so far have not been able to get the prescaler working, will keep trying.
+

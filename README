@@ -1,0 +1,15 @@
+
+Tiva C Launchpad Bare Metal Examples
+
+ti bought this product line from luminary micro a while back.  The
+luminary micro product name was stellaris and after they became ti it
+was the stellaris but not long ago was renamed Tiva C.  And I see
+that they now have renamed the parts from lm... to tm...
+
+They had just one launchpad (under the stellaris name) now they have
+more.  so I will leave my stellaris_launchpad repo there as was, but
+it is moving here.  Not sure how to name them though will start with
+a launchpad dir for the original and connected for the new connected
+one.
+
+

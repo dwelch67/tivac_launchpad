@@ -1,0 +1,52 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+A very nice feature of this board, which you see from time to time with
+these types of development boards, is there is really two microcontrollers
+on this board.  One you dont control, it has vendor firmware on it that
+is dedicated to helping you out.  It first is there to bang on the jtag
+to program the part you do have control over to load your programs and
+start them and such.  The nice feature this board has is that the main
+uart interface on the device we control is tied to a uart on the device
+they control.  Basically they are also using that device for usb to
+serial so we dont need to have a separate usb to uart/serial in order
+to communicate with the device we control.
+
+I say the "main uart interface", well there are supposedly 8 uarts in
+this part!  If you look around in the GPIO register space you will see
+that PA[1:0] (GPIO ports/pins PA0 and PA1) are treated special on power
+up and reset.  This chart is seen in the GPIOAFSEL, GPIODEN and some
+other places.  This chart threw me for a loop for quite a while.  Had
+to go away and come back to figure this out.  That chart IS NOT implying
+that to get uart functionality you need an AFSEL of 0.  You still need
+an afsel of 1 and a den of 1 which another GPIO chart shows you.  All
+that chart is showing is that these are exceptions to the rule that
+is stated just above the chart.  So since PA[1:0] are called out as
+special in this way, and because on this board they are marked as TXD
+and RXD and tied to the vendor controlled microcontroller, they really
+intended for those to be used as a uart.  You dont have to of course,
+and this doesnt limit you from using the other uarts on other available
+pins.
+
+As with most TI manuals they hold your hand for the most part through
+the init process.  No different here, they have a fractional baud rate
+generator which some vendors make overly complicated and make it harder
+to know what to put where.  TI has made it pretty easy with one exception,
+often (across all vendors I have experienced) you put the divisor minus
+one in a baud rate divisor register, in this case you really just put
+the number they tell you.  They were also vague about how to handle the
+tx and rx enable.
+
+This example uses the internal oscillator (PIOSC) both for the processor
+and the uart.  The uart has its own clock selector which includes PIOSC
+directly (a nice design feature) so in theory no matter what you choose
+as your system clock the uart init routine here should still work since
+it doesnt use the system clock.
+
+The example starts by using the systick timer to dribble out one byte
+a second to see the TX working without getting into checking the tx buffer
+status.  Then it goes into a loop that sends a sequence of characters
+as fast as it can using the tx buffer status.
+
