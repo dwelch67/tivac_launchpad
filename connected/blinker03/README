@@ -1,0 +1,31 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+This expands on the blinker02 example.  This example uses the SysTick
+timer to more accurately control the time between led blink events.
+
+These leds are very painful on my eyes so I have the leds blink breifly
+over some measured time, just enough that I can measure that time with
+a stopwatch and figure out the clock rate for the timer.
+
+The blinker02 example verified that the cortex-m4 was running at at 16mhz
+at the point that our program gets control.  It is likely the internal
+oscillator PIOSC not the external MOSC, that is speculation.  16Mhz
+either way.
+
+blinker02 basically left a 24 bit free running counter, blinker03 instead
+changes the load value such that the systick counter rolls over every
+one million ticks.  Count 160 rollovers and that is 160 million ticks
+which at 16mhz is 10 seconds.  The systick control register has a count
+bit that is set when the counter rolls over and is cleared either
+when the st control register is read or the st current register is
+written to.  We dont want to mess up the count by writing to the st
+current register (which causes it to reload wherever in the count it
+is).  We want to poll the control register to look for the count bit,
+since that clears the count bit after reading then we dont have to do
+any more work.  just read it and test for the bit, repeat.
+
+
+
