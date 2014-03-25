@@ -21,14 +21,15 @@ up and reset.  This chart is seen in the GPIOAFSEL, GPIODEN and some
 other places.  This chart threw me for a loop for quite a while.  Had
 to go away and come back to figure this out.  That chart IS NOT implying
 that to get uart functionality you need an AFSEL of 0.  You still need
-an afsel of 1 and a den of 1 which another GPIO chart shows you.  All
-that chart is showing is that these are exceptions to the rule that
-is stated just above the chart.  So since PA[1:0] are called out as
-special in this way, and because on this board they are marked as TXD
-and RXD and tied to the vendor controlled microcontroller, they really
-intended for those to be used as a uart.  You dont have to of course,
-and this doesnt limit you from using the other uarts on other available
-pins.
+an afsel of 1 and a den of 1 and pctl of 1 which another GPIO chart
+shows you.  All that chart is showing is that these are exceptions to
+the rule that is stated just above the chart.  So since PA[1:0] are
+called out as special in this way, and because on this board they are
+marked as TXD and RXD and tied to the vendor controlled microcontroller,
+they really intended for those to be used as a uart.  You dont have to
+of course, and this doesnt limit you from using the other uarts on
+other available pins.  Note this connected board has jumpers if you want
+to disconnect UART0 TXD and RXD and not use this feature.
 
 As with most TI manuals they hold your hand for the most part through
 the init process.  No different here, they have a fractional baud rate
