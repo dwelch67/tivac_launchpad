@@ -1,0 +1,11 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+At the moment this code assumes that you have the stock firmware that
+came with the board loaded.
+
+/dev/ttyACM0 is where I find the uart data
+
+
+
