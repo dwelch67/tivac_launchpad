@@ -31,7 +31,7 @@ cmsis-dap.cfg.  Mine is the only one you need
 
 in one window
 
-openocd -f mps432.cfg
+openocd -f msp432.cfg
 
 in another window
 
@@ -39,5 +39,15 @@ telnet localhost 4440
 > halt
 > load_image /path/to/myprog.elf
 > resume 0x01000000
+
+Whatever directory you run the openocd server in is the base directory
+so if you are in your programs development directory then you dont
+need the path
+
+cd blinker01
+openocd -f ../msp432.cfg
+
+then you can just do a load_image blinker01.gcc.thumb.sram.elf without
+a path.
 
 

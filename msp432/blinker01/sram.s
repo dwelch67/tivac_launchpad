@@ -17,9 +17,27 @@ hang:   b .
 stacktop: .word 0x20001000
 ;@-----------------------
 .thumb_func
+.globl PUT8
+PUT8:
+    strb r1,[r0]
+    bx lr
+;@-----------------------
+.thumb_func
+.globl GET8
+GET8:
+    ldrb r0,[r0]
+    bx lr
+;@-----------------------
+.thumb_func
 .globl PUT16
 PUT16:
     strh r1,[r0]
+    bx lr
+;@-----------------------
+.thumb_func
+.globl GET16
+GET16:
+    ldrh r0,[r0]
     bx lr
 ;@-----------------------
 .thumb_func
