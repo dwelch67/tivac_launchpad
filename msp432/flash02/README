@@ -1,0 +1,24 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+Wow, this worked, this chip is super easy to program the flash, almost
+scary.  The manual talks about verification, I enabled the hardware
+stuff but didnt do the infinite loops of trying until it all clears
+and writes correctly.
+
+If you have the as-shipped firmware or at least the stuff I had on mine
+then you can run this as is, this will blow that firmware away, you have
+been informed.  It replaces it with a simple blinker program basically
+blinker01.
+
+If you have run flash01 and erased the flash then uncomment uart_init
+and use the 12mhz setting.
+
+If you have run flash02 and written the blinker program then it appears
+like the as-shipped demo application the default is DCOCLK at 3MHz, so
+to use this program again and see the uart work (and perhaps to have it
+work at all) uncomment uart init and uncomment the 3MHz baud rate divisor
+or just let it blast out the uart 4x too slow (28800 baud), not sure
+how the xds110 handles that.
+

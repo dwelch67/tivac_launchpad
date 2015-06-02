@@ -10,6 +10,11 @@ void PUT16 ( unsigned int, unsigned int );
 unsigned int GET16 ( unsigned int );
 void dummy ( unsigned int );
 
+
+extern const unsigned int flash_data_words;
+extern const unsigned int flash_data[];
+
+
 //------------------------------------------------------------------------
 
 #define FLCTL_BASE 0x40011000
@@ -25,13 +30,38 @@ void dummy ( unsigned int );
 #define FLCTL_IFG               (FLCTL_BASE+0x0F0)
 #define FLCTL_IE                (FLCTL_BASE+0x0F4)
 #define FLCTL_CLRIFG            (FLCTL_BASE+0x0F8)
+
+
 #define UART0_BASE 0x40001000
+#define UCA0CTLW0   (UART0_BASE+0x00)
+#define UCA0BRW     (UART0_BASE+0x06)
+#define UCA0MCTLW   (UART0_BASE+0x08)
 #define UCA0TXBUF   (UART0_BASE+0x0E)
+#define UCA0IE      (UART0_BASE+0x1A)
 #define UCA0IFG     (UART0_BASE+0x1C)
+
+#define PORT_BASE 0x40004C00
+#define PASEL0_L (PORT_BASE+0x0A)
+#define PASEL1 PASEL1_L
+#define PASEL1_L (PORT_BASE+0x0C)
+
+#define WDTCTL   0x4000480C
+
+
 
 //------------------------------------------------------------------------
 void uart_init ( void )
 {
+    PUT8(PASEL1_L,GET8(PASEL1_L)&0xF3);
+    PUT8(PASEL0_L,GET8(PASEL0_L)|0x0C);
+
+    PUT16(UCA0CTLW0,0x0081);
+    PUT16(UCA0BRW,104); //12000000/115200 = 104
+    //PUT16(UCA0BRW,26); //12000000/115200 = 26
+    PUT16(UCA0MCTLW,0x0000);
+    PUT16(UCA0IE,0);
+    PUT16(UCA0CTLW0,0x0081);
+    PUT16(UCA0CTLW0,0x0080);
 }
 //------------------------------------------------------------------------
 void uart_send ( unsigned int x )
@@ -75,6 +105,9 @@ void hexstring ( unsigned int d )
 void write_word ( unsigned int a, unsigned int d )
 {
     unsigned int ra,rb,rc;
+
+hexstrings(a); hexstring(d);
+    
     PUT32(a,d);
     ra=0;
     while(1)
@@ -86,6 +119,7 @@ void write_word ( unsigned int a, unsigned int d )
             ra=rc;
             hexstring(ra);
         }
+        if(rc==0x00000) break;
         if(rc==0x30000) break;
     }
 }
@@ -98,7 +132,9 @@ int notmain ( void )
     unsigned int rd;
     unsigned int re;
 
-    uart_init();
+    PUT16(WDTCTL,0x5A84); //stop WDT
+
+    //uart_init();
     hexstring(0x12345678);
     PUT32(FLCTL_BANK0_MAIN_WEPROT,0xFFFFFFFE);
     PUT32(FLCTL_ERASE_CTLSTAT,0x00080000);
@@ -123,7 +159,22 @@ int notmain ( void )
     }
     if(rb&0x40000) hexstring(0xBAD);
     PUT32(FLCTL_ERASE_CTLSTAT,0x00080000);
+    hexstring(GET32(FLCTL_PRG_CTLSTAT));
+    hexstring(flash_data_words);
+    PUT32(FLCTL_PRG_CTLSTAT,0xC1);
+    for(ra=0;ra<flash_data_words;ra++)
+    {
+        write_word(ra<<2,flash_data[ra]);
+    }
     PUT32(FLCTL_BANK0_MAIN_WEPROT,0xFFFFFFFF);
+
+    for(ra=0;ra<flash_data_words;ra++)
+    {
+        hexstrings(ra<<2);
+        hexstrings(GET32(ra<<2));
+        hexstring(flash_data[ra]);
+    }
+
     hexstring(0x12345678);
     return(0);
 }

@@ -2,10 +2,17 @@
 See the previous level README for schematic and programmers reference
 information.
 
-At the moment this code assumes that you have the stock firmware that
-came with the board loaded.
+If you are running with the as-shipped firmware then you can leave
+uart_init uncommented.  It is already setup to work. Mine was shipped
+using DCOCLK at 3MHz, so if you want to use the uart init change the
+baud rate divisor register as noted in the code. 
+
+If you have run flash01 and wiped the main flash so that the bsl is
+now running, then you need to uart init so uncomment the uart init,
+which uses a divisor for 12mhz.
 
 /dev/ttyACM0 is where I find the uart data
 
-
+You should see 0123456701234567 forever, no skips in order, might need
+to enable wrap on your terminal program.
 

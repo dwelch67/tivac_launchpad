@@ -9,6 +9,10 @@ have the ARM clock set to 12MHz.  With the timer set to roll over at
 12,000,000 ticks, wait for 10 rollovers and that is 10 seconds the
 led changes state every 10 seconds.
 
-
+The as-shipped app appears to be running at 3MHz which is a strange number
+10 times counting to 12 million took 40 seconds. 120million/40 = 3
+million ticks per second.  Dumping regs it does appear that we are running
+off of DCO clock and it is set to 3MHz.  At least the as-shipped firmware
+that my board came with.
 
 

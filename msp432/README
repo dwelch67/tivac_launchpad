@@ -50,17 +50,28 @@ openocd -f ../msp432.cfg
 then you can just do a load_image blinker01.gcc.thumb.sram.elf without
 a path.
 
+flash01 works to erase the first part of the user (main) flash causing
+you to end up in the BSL when you reset or power cycle.
 
-flash01 works to erase the program that comes with the device.  The
-board will reset/power cycle into the bsl is what it appears.  Still
-working out how to init the uart, but the blinkers work.
+flash02 will erase and place a blinker program there so when you reset
+or power cycle it will run that.  It does not setup anything but the
+gpio (well holds the wdt) so it is a fairly clean boot, leaving you
+to be able to develop programs that initalize everything from a power
+on reset environment.
 
-Interesting note I can sorta program the flash, enough to put a small
-program but that pisses off the bsl or something, cant halt via jtag,
-but I can follow the steps in flash01 to manually erase the first
-sector in main again and reset and go back to the bsl.  but sometimes
-cant actually run a program.
+My board came with an app that used the DCOCLK at 3MHz, flash02 shows
+that that is the default for a simple flash based application.  The
+uart01 program uart_init() can be used with the proper line uncommented
+for initalizing the uart for 115200 with a 3MHz SMCLK (SMCLK powers up
+with a divide by 1).
 
+If you use flash01 to erase the flash but not replace it with anything
+the docs are very brief but say if they dont detect user code they go
+into the BSL which appears to set for a 12MHz clock.  Likewise uart01
+flash02 can be used with a uart_init() and the proper line uncommented
+for 12MHz SMCLK.
 
-
+Most if not all of the remaining examples assume that you have used
+flash02 to erase and replace the firmware on the flash.
+ 
 
