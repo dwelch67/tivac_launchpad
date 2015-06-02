@@ -16,26 +16,43 @@ void dummy ( unsigned int );
 #define PADIR_L (PORT_BASE+0x04)
 #define PADIR_H (PORT_BASE+0x05)
 
-#define DELAY_COUNT 200000
+#define SYST_CSR 0xE000E010
+#define SYST_RVR 0xE000E014
+#define SYST_CVR 0xE000E018
+#define SYST_CALIB 0xE000E01C
 
-void delay ( unsigned int x )
+
+void delay ( void )
 {
-    while(x--) dummy(x);
+    unsigned int ra;
+    for(ra=0;ra<10;ra++)
+    {
+        while(1)
+        {
+            if(GET32(SYST_CSR)&0x10000) break;
+        }
+    }
 }
 int notmain ( void )
 {
     unsigned int ra;
 
     PUT8(PADIR_L,GET8(PADIR_L)|0x01);
+
+    PUT32(SYST_CSR,4);
+    PUT32(SYST_RVR,12000000-1);
+    PUT32(SYST_CVR,12000000-1);
+    PUT32(SYST_CSR,5);
+
     ra=GET8(PAOUT_L);
     while(1)
     {
         ra^=1;
         PUT8(PAOUT_L,ra);
-        delay(DELAY_COUNT);
+        delay();
         ra^=1;
         PUT8(PAOUT_L,ra);
-        delay(DELAY_COUNT);
+        delay();
     }
     return(0);
 }

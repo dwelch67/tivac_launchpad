@@ -1,0 +1,14 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+This code uses the ARM's systick timer.
+
+With an erased user flash the BSL is likely running and it appears to
+have the ARM clock set to 12MHz.  With the timer set to roll over at
+12,000,000 ticks, wait for 10 rollovers and that is 10 seconds the
+led changes state every 10 seconds.
+
+
+
+

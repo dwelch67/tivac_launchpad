@@ -2,10 +2,10 @@
 See the previous level README for schematic and programmers reference
 information.
 
-At the moment this code assumes that you have the stock firmware that
-came with the board loaded.
+So far this code works with the stock code that comes with the board.
 
-/dev/ttyACM0 is where I find the uart data
+A power cycle or reset causes the bsl to start, not sure if that is
+good or bad.
 
 
 

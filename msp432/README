@@ -12,14 +12,14 @@ I so far have not tried messing with flash, but I can load a program
 into ram and run it using openocd and the msp432.cfg file in this
 directory.
 
-git clone git://repo.or.cz/openocd.git 
-cd openocd 
-./bootstrap 
+git clone git://repo.or.cz/openocd.git
+cd openocd
+./bootstrap
 ./configure --enable-legacy-ft2232_libftdi --enable-cmsis-dap
 (not sure if the libftdi is even needed I use that for something else)
-resolve dependencies (libftdi, etc) until configure works 
-make  
-sudo make install 
+resolve dependencies (libftdi, etc) until configure works
+make
+sudo make install
 
 blinker01 as of this writing doesnt actually blink it modifies a memory
 location so I can see over jtag as I resume/halt it that it is changing
@@ -49,5 +49,18 @@ openocd -f ../msp432.cfg
 
 then you can just do a load_image blinker01.gcc.thumb.sram.elf without
 a path.
+
+
+flash01 works to erase the program that comes with the device.  The
+board will reset/power cycle into the bsl is what it appears.  Still
+working out how to init the uart, but the blinkers work.
+
+Interesting note I can sorta program the flash, enough to put a small
+program but that pisses off the bsl or something, cant halt via jtag,
+but I can follow the steps in flash01 to manually erase the first
+sector in main again and reset and go back to the bsl.  but sometimes
+cant actually run a program.
+
+
 
 
