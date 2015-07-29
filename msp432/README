@@ -1,33 +1,25 @@
 
 Although these are technically perhaps not tiva branded products I just
 got an MSP432 launchpad which is a cortex-m4 based, that is not
-confgusing at all with msp430 being some completely different processor.
+confusing at all with msp430 being some completely different processor.
 
 So they have switched the front end debugger portion to be compatible
-with XDS100 and/or CMSIS-DAP (or both).  In theory I can dig up
-my hercules boards (well the not bricked one) and perhaps have a chance
-at talking to it (from linux without an ide).
-
-I so far have not tried messing with flash, but I can load a program
-into ram and run it using openocd and the msp432.cfg file in this
-directory.
+with XDS100 and/or CMSIS-DAP (or both).
 
 git clone git://repo.or.cz/openocd.git
 cd openocd
 ./bootstrap
-./configure --enable-legacy-ft2232_libftdi --enable-cmsis-dap
-(not sure if the libftdi is even needed I use that for something else)
-resolve dependencies (libftdi, etc) until configure works
+./configure --enable-cmsis-dap
 make
 sudo make install
 
 blinker01 as of this writing doesnt actually blink it modifies a memory
-location so I can see over jtag as I resume/halt it that it is changing
-that memory location (that the program is really running)
+location.  Over jtag as I resume/halt it changes a memory location that
+indicates the program is really loaded and running.
 
 my openocd script msp432.cfg is cobbled together from an stm32 one,
 there might be a stock one from openocd that works in parallel with
-cmsis-dap.cfg.  Mine is the only one you need
+cmsis-dap.cfg.  If you use mine you wont need other cfg files.
 
 in one window
 
@@ -73,5 +65,5 @@ for 12MHz SMCLK.
 
 Most if not all of the remaining examples assume that you have used
 flash02 to erase and replace the firmware on the flash.
- 
+
 
