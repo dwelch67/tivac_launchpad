@@ -1,0 +1,15 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+If either of the user buttons are pressed (P1.1 or P1.4) then the P1.0
+led comes on, otherwise it is off.
+
+The schematic shows that the switches short the pin to ground, or zero
+to detect not shorted, we need to "pull up" the input to 1 using a
+pull up resistor, so we need to enable the resistor and select pull up.
+DIR = 0 input, REN = 1 resistor enabled, OUT = 1 pull up.
+
+If the pin 1.1 or 1.4 input reads as a 1, then the button is not pressed
+so if either 1.1 or 1.4 is zero then the button is pressed.
+
