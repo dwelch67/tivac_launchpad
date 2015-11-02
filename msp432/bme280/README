@@ -1,0 +1,8 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+experimenting with a BME280 temp/humidity/etc sensor I got off of ebay
+(I think sparkfun has some).  using spi mode, bit banged for now.
+
+
