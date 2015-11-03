@@ -51,6 +51,9 @@ void ASMDELAY ( unsigned int );
 
 //------------------------------------------------------------------------
 
+static unsigned int dig_t1;
+static unsigned int dig_t2;
+static unsigned int dig_t3;
 
 
 //------------------------------------------------------------------------
@@ -248,10 +251,25 @@ unsigned int spi_read_three ( unsigned int add )
     return(data);
 }
 
+unsigned int compensate_temp ( unsigned int raw )
+{
+    unsigned int var1;
+    unsigned int var2;
+    unsigned int temp;
+    unsigned int t_fine;
+    var1 = ((((raw>>3) - (dig_t1<<1))) * (dig_t2)) >> 11;
+    var2 = (((((raw>>4) - (dig_t1)) * ((raw>>4) - (dig_t1))) >> 12) * (dig_t3)) >> 14;
+    t_fine = var1 + var2;
+    temp = (t_fine * 5 + 128) >> 8;
+    return(temp);
+}
 
 int notmain ( void )
 {
     unsigned int ra;
+    unsigned int rb;
+    unsigned int rc;
+    unsigned int a,b,c,d,e,f;
     
     PUT16(WDTCTL,0x5A84); //stop WDT
     uart_init();
@@ -275,16 +293,81 @@ int notmain ( void )
     spi_write_byte(0xE0,0xB6);
     ASMDELAY(1000000);
     ra=spi_read_byte(0xD0); hexstring(ra);
+
+    dig_t1=spi_read_byte(0x89);
+    dig_t1<<=8;
+    dig_t1|=spi_read_byte(0x88);
+    dig_t2=spi_read_byte(0x8B);
+    dig_t2<<=8;
+    dig_t2|=spi_read_byte(0x8A);
+    dig_t3=spi_read_byte(0x8D);
+    dig_t3<<=8;
+    dig_t3|=spi_read_byte(0x8C);
+    
     ra=spi_read_byte(0xF4); hexstring(ra);
     spi_write_byte(0xF4,0x83);
     ra=spi_read_byte(0xF4); hexstring(ra);
+
+
+    
     ra=spi_read_byte(0xF3); hexstring(ra);
     while(1)
     {
         ra=spi_read_byte(0xF3); hexstrings(ra);
-        ra=spi_read_three(0xFA); hexstring(ra);
+        ra=spi_read_three(0xFA); hexstrings(ra);
+        rb=compensate_temp(ra>>4);
+        hexstrings(rb);
+        //to decimal without dividingce
+        rc=rb;
+        for(a=0;a<10;a++) if(rc<(a*1000)) break;
+        a--;
+        rc-=(a*1000);
+        for(b=0;b<10;b++) if(rc<(b*100)) break;
+        b--;
+        rc-=(b*100);
+        for(c=0;c<10;c++) if(rc<(c*10)) break;
+        c--;
+        rc-=(c*10);
+        d=rc;
+        uart_send(0x30+a);
+        uart_send(0x30+b);
+        uart_send('.');
+        uart_send(0x30+c);
+        uart_send(0x30+d);
+        //uart_send(0x0D);
+        //uart_send(0x0A);
+        uart_send(0x20);
+        rc=(18*rb)+32000;
+        rb=rc;
+        for(a=0;a<10;a++) if(rc<(a*100000)) break;
+        a--;
+        rc-=(a*100000);
+        for(b=0;b<10;b++) if(rc<(b*10000)) break;
+        b--;
+        rc-=(b*10000);
+        for(c=0;c<10;c++) if(rc<(c*1000)) break;
+        c--;
+        rc-=(c*1000);
+        for(d=0;d<10;d++) if(rc<(d*100)) break;
+        d--;
+        rc-=(d*100);
+        for(e=0;e<10;e++) if(rc<(e*10)) break;
+        e--;
+        rc-=(e*10);
+        f=rc;
+        uart_send(0x30+a);
+        uart_send(0x30+b);
+        uart_send(0x30+c);
+        uart_send('.');
+        uart_send(0x30+d);
+        uart_send(0x30+e);
+        uart_send(0x30+f);
+        uart_send(0x0D);
+        
+
+        
     }
-    //hexstring(0x12345678);
+    hexstring(0x12345678);
 
     return(0);
 }
