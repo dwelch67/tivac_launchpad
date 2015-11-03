@@ -1,0 +1,22 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+Using a simple ir reciver module
+
+http://www.sparkfun.com/products/10266
+
+for this one
+
+facing bump pins down 1 2 3
+1 out
+2 gnd
+3 vcc
+
+note that not all modules have the same pinout, get it wrong and you
+let smelly smoke out.
+
+This example takes the out signal from the receiver and basically
+shows it on the led.  Your sensor may or may not invert, so with the
+above, the led is off normally and blinks when there is the right kind
+of ir (tv/etc remote controls).
