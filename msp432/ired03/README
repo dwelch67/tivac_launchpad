@@ -1,0 +1,90 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+This is an NEC protocol decoder.
+
+derived from ired02, you can see the if(0)s show the steps I took to
+work my way into decoding this protocol.
+
+A couple of resources for codes, I have been using the sbprojects
+one for some time now.
+
+http://www.vishay.com/docs/80071/dataform.pdf
+http://www.sbprojects.com/knowledge/ir/
+
+http://www.sbprojects.com/knowledge/ir/nec.php
+
+we can see from the picture in the nec link above what this code
+looks like.
+
+it starts with a 9ms start pulse followed by a 4.5ms off.
+
+I have flashed my board/chip so I am running at 3MHz, you have to
+adjust if you are running at a different frequency and using the arm
+system timer.
+
+At 3Mhz,
+3000000*0.0090 = 27000 = 0x6978
+3000000*0.0045 = 13500 = 0x34BC
+3000000*0.0025 =  7500 = 0x1D4C
+
+3000000*0.00169 = 5070 = 0x13CE
+3000000*0.00112 = 3360 = 0xD20
+3000000*0.000560 = 1680 = 0x690
+
+so those are the ideal systick counts.  you will not see this perfection
+you have to allow for some slop.  you can put some tight limits on it
+or like in this example not try so hard.  This code is a little bit self
+checking the first byte is repeated inverted, then you get another byte,
+and inverted byte. So if you decode 32 bits and these inversion checks
+are not there then you didnt decode right.
+
+This code is not interrupt based but certainly could be, you would
+need to make a state machine out of the decode.  No difference really
+in concept, you are still measuring the time between state changes and
+have to know where in the protocol you are to know what you are
+decoding.
+
+Anyway, back to decoding.  So with this receiver we idle with the
+input high.  Once we see the input drop we start measuring. if we see
+9ms plus or minus a little that is the first part of the sync pattern
+if not then maybe that is another remote or other IR coming in that
+we dont care about.  The nice thing about a code like this you
+can find the start pretty easy and know where you are in the decode
+relative to the sync pattern.  The next measurement after the
+input has gone back high should either be 4.5ms or 2.5ms.  4.5 means
+we have a full code coming, 2.5 means repeat the last code (that you
+decoded).
+
+If not a repeat then there should be 32 patterns of 560us leading
+either a 2.25ms or 1.12ms period.  So a "1" is 560us + 1690us and
+a "0" is 560us + 560us.  to mark the last bit there will be a solo
+560us burst.
+
+TODO, add more checking so you dont get stuck from other IR or glitches
+that leave you in the middle of a decode waiting for a state change
+that doesnt come.  Basically if you see something other than 560us
+(plus or minus some slop) then abort the decode.  if after the 560 you
+see more than 1.69ms then abort the decode.
+
+If you read to the bottom of the sbprojects page you see that they
+have a plan for running out of codes, basically not repeating.  Simply
+dont do the inverted code check and see if you find codes.  Each
+button should have a unique code, and likely that most of the buttons
+related to one dvd player or whatever target device will have the
+first 16 bits the same and the second 16 bits unique.
+
+Some different buttons from the same remote, an old toshiba cd player.
+
+54AB807F
+54AB40BF
+54ABC03F
+54AB20DF
+54ABA05F
+54AB609F
+54ABE01F
+54AB10EF
+54AB906F
+
+It may be called the NEC protocol but many brands use it.
