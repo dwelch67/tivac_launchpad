@@ -1,5 +1,6 @@
 
-ARMGNU = arm-none-eabi
+#ARMGNU ?= arm-none-eabi
+ARMGNU ?= arm-linux-gnueabi
 
 AOPS = --warn --fatal-warnings -mcpu=cortex-m0
 COPS = -Wall -Werror -O2 -nostdlib -nostartfiles -ffreestanding  -mcpu=cortex-m0

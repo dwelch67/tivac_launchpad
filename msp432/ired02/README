@@ -2,4 +2,52 @@
 See the previous level README for schematic and programmers reference
 information.
 
-more work on ir remote control decoding.  
+so the ired03 writeup is probably better. but decoding an ir remote
+is a very educational thing you are working with a timer you are
+trying to measure a sequence of pulses, the receiver is cheap, you
+likely have a stack of remotes somewhere.
+
+There are a number of protocols some documented but that doesnt mean
+any particular vendor has to honor those protocols.
+
+If you have access to a scope you can monitor the output of the
+ir sensor (see ired01) and get to the truth quickly of what the
+protocol is how it behaves, how many bits to decode, if there is a
+sync pattern, etc (http://www.sbprojects.com/knowledge/ir/ is a really
+good resource).  Tells you everything you need to know to write the
+software to decode this protocol.
+
+if you dont have a scope or have one handy or whatever and need/want
+to decode this without that visibility then you can see what I have
+done.  I went through many experiments trying to figure out what a
+particular remote was doing.  For each remote you may need to go through
+this.  you could come from the other direction and try to make a decoder
+for each protocol then maybe you have a remote that follows that
+protocol (if you have a programmable remote like a dish or other that
+supports many tvs for example, you basically have dozens/hundreds of
+remotes in one and increase your odds of finding each of the major
+protocols).  I like to just take some remote that came with say a car
+stereo or an old camcorder or something I dont use anymore but still
+have the remote laying around.  Doesnt mess with the tv for example
+when trying to decode it.  And I go through the process you see here.
+
+I greatly prefer the protocols that have a sync pattern like the nec
+or sony sirc.  this particular remote appears to be a sony sirc.  the
+ired03 example turns out to be an nec protocol.
+
+switch to the ired03 readme now and then come back perhaps.
+
+
+3000000 * 0.002400 = 7200 = 0x1C20
+3000000 * 0.001200 = 3600 = 0xE10
+3000000 * 0.000600 = 1800 = 0x708
+
+sony SIRC protocol
+
+sync is 2.4ms of burst followed by 600us of pause.
+a one is 1.2ms of burst followed by 600us of pause
+a zero is 600us of burst followed by 600us of pause
+
+there isnt an end burst to the last pause will go well beyond the 600us
+
+12 data bits in the payload

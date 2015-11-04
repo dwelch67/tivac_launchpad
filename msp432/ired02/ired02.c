@@ -114,7 +114,6 @@ int notmain ( void )
     unsigned int rb;
     unsigned int rc;
     unsigned int rd;
-    unsigned int code;
     unsigned int rx[64];
 
     PUT16(WDTCTL,0x5A84); //stop WDT
@@ -291,152 +290,537 @@ int notmain ( void )
     //0000001D 009D4979 0000075B
     //0000001E 009D4284 000006F5
     //0000001F 009D348D 00000DF7
-    //5) okay getting protocol specific now.  see where this goes
-    //next important thing to learn is that this is not all purely
-    //digital.  what is going on is that the sending led is blinking
-    //at a frequency of about 40Khz or a little slower, ideally you
-    //want to get matched receivers for the specific freqency (use a
-    //38Khz receiver instead of a 40 for example if the remote is
-    //that frequency.  being close enough works but you might see the
-    //effects in this next step, even with matching frequencies.
-    //so the pulses are ideally square waves but there is some
-    //physics there, you cant be perfect on that.  next the above
-    //pulses we see are not these 40Khz, it is more like am radio
-    //the non-idle signal is a blob of pulses of some length.  kind of
-    //like a hair comb with some teeth, then some missing then some
-    //there.  we dont see the individual teeth but if you squint and
-    //make a group of teeth look like a combined blob, we see the length
-    //of the blob.
-    //to cut this short due to the analog nature of this being closer
-    //or futher or perhaps strength of the battery in the remote, etc
-    //you will see variations in these time measurements.
-    //getting protocol specific so lets look for just long low periods
-    //greater than 0x1000 counts.
+
+    if(0)
+    {
+        rd=0;
+        while(1)
+        {
+            while((GET8(PAIN_L)&0x40)==0x40) continue;
+            rb=GET32(SYST_CVR);
+            while((GET8(PAIN_L)&0x40)==0x00) continue;
+            rc=GET32(SYST_CVR);
+            rc=(rb-rc)&SYST_MASK;
+            if(rc>rd)
+            {
+                rd=rc;
+                hexstring(rd);
+            }
+        }
+    }
+
+
+    if(0)
+    {
+        unsigned int min,max;
+        rd=0;
+        min=0; min--;
+        max=0;
+        while(1)
+        {
+            while((GET8(PAIN_L)&0x40)==0x40) continue;
+            rb=GET32(SYST_CVR);
+            while((GET8(PAIN_L)&0x40)==0x00) continue;
+            rc=GET32(SYST_CVR);
+            rd=(rb-rc)&SYST_MASK;
+            if(rd>max) max=rd;
+            if(rd<min) min=rd;
+            while(1)
+            {
+                while((GET8(PAIN_L)&0x40)==0x40)
+                {
+                    rb=GET32(SYST_CVR);
+                    rd=(rb-rc)&SYST_MASK;
+                    if(rd>0x6000) break;
+                }
+                if(rd>0x6000) break;
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rc=GET32(SYST_CVR);
+            }
+            hexstrings(min);
+            hexstring(max);
+
+
+
+
+        }
+    }
+
+
     if(0)
     {
         while(1)
         {
-            while((GET8(PAIN_L)&0x40)==0x40) continue;
-            rb=GET32(SYST_CVR);
-            while((GET8(PAIN_L)&0x40)==0x00) continue;
-            rc=GET32(SYST_CVR);
-            rd=(rb-rc)&SYST_MASK;
-            if(rd>0x1000) hexstring(rd);
-        }
-    }
-    //fortunately with this remote and receiver I am seeing
-    //fairly consistent 0x1Czz where the zz part varies but the
-    //0x1C00 time is consistent.
-    //with this remote and there is no hard and fast rule
-    //i am seeing about or maybe exactly 4 start patterns for each
-    //quick button press.  dont want one volume up or channel up to
-    //be interpreted as four so you need to watch for this.
-
-    //lets capture idles less than 800
-    if(0)
-    {
-        while(1)
-        {
-            while((GET8(PAIN_L)&0x40)==0x00) continue;
-            rb=GET32(SYST_CVR);
-            while((GET8(PAIN_L)&0x40)==0x40) continue;
-            rc=GET32(SYST_CVR);
-            rd=(rb-rc)&SYST_MASK;
-            if(rd<0x800) hexstring(rd);
-        }
-    }
-    //hmmm I see some 0x400s I didnt see before, maybe it is the way
-    //this test was coded
-    if(0)
-    {
-        while(1)
-        {
-            while((GET8(PAIN_L)&0x40)==0x00) continue;
-            rb=GET32(SYST_CVR);
-            while((GET8(PAIN_L)&0x40)==0x40) continue;
-            rc=GET32(SYST_CVR);
-            rd=(rb-rc)&SYST_MASK;
-            if(rd>0x800) continue;
-            if(rd<0x500) continue;
-            hexstring(rd);
-        }
-    }
-    //that demonstrates the point for this specific remote
-    //up close I get at/over 0x700 counts
-    //further away I get down into the lower 0x600s, also remember
-    //not to just walk across the room but also point the remote at
-    //all the walls to gain some distance and see what the reflection
-    //does.  allowing for some slop allows you to still be able to
-    //detect a code.
-
-
-
-    //just go for it
-
-    if(1)
-    {
-        while(1)
-        {
-            while((GET8(PAIN_L)&0x40)==0x40) continue;
-            //sync
-            rb=GET32(SYST_CVR);
-            while((GET8(PAIN_L)&0x40)==0x00) continue;
-            rc=GET32(SYST_CVR);
-            rd=(rb-rc)&SYST_MASK;
-            if(rd>0x1000) ; else continue;
-            
-            code=0;
+            for(ra=0;ra<64;)
+            {
+                while((GET8(PAIN_L)&0x40)==0x40) continue;
+                rx[ra++]=GET32(SYST_CVR);
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rx[ra++]=GET32(SYST_CVR);
+            }
+            rc=rx[ra-1];
             while(1)
             {
                 while((GET8(PAIN_L)&0x40)==0x40)
                 {
                     rb=GET32(SYST_CVR);
                     rd=(rc-rb)&SYST_MASK;
-                    if(rd>0x1000) break;
+                    if(rd>3000000) break;
                 }
-                if(rd>0x1000)
-                {
-                    hexstring(code);
-                    break;
-                }
+                if(rd>3000000) break;
                 while((GET8(PAIN_L)&0x40)==0x00) continue;
                 rc=GET32(SYST_CVR);
-                rd=(rb-rc)&SYST_MASK;
+            }
+            rd=ra;
+            hexstring(rd);
+            for(ra=0;ra<rd;ra++)
+            {
+                hexstrings(ra);
+                if(ra)
+                {
+                    rb=(rx[ra-1]-rx[ra])&SYST_MASK;
+                    hexstrings(rx[ra]);
+                    hexstring(rb);
+                }
+                else
+                {
+                    hexstring(rx[ra]);
+                }
+            }
+        }
+    }
+    //Okay so this tells all
+    //00000040
+    //00000000 005121D2
+    //00000001 00510570 00001C62 sync
+    //00000002 0050FEC6 000006AA
+    //00000003 0050F722 000007A4 zero
+    //00000004 0050F030 000006F2
+    //00000005 0050E226 00000E0A one
+    //00000006 0050DB34 000006F2
+    //00000007 0050CD2A 00000E0A one
+    //00000008 0050C638 000006F2
+    //00000009 0050BEDC 0000075C zero
+    //0000000A 0050B7FC 000006E0
+    //0000000B 0050B0B2 0000074A zero
+    //0000000C 0050A9AE 00000704
+    //0000000D 0050A264 0000074A zero
+    //0000000E 00509B72 000006F2
+    //0000000F 00508D68 00000E0A one
+    //00000010 005086BE 000006AA
+    //00000011 00507F1A 000007A4 zero
+    //00000012 0050783A 000006E0
+    //00000013 005070F0 0000074A zero
+    //00000014 005069FE 000006F2
+    //00000015 00505BF4 00000E0A one
+    //00000016 0050554A 000006AA
+    //00000017 00504DA6 000007A4 zero
+    //00000018 005046B4 000006F2
+    //00000019 00503F7C 00000738 zero
+    //0000001A 00503878 00000704
+    //0000001B 0050312E 0000074A zero
+    //0000001C 00502A3C 000006F2
+    //0000001D 005022E0 0000075C zero
+    //0000001E 00501C00 000006E0
+    //0000001F 00500DE4 00000E1C one
+    //00000020 004F1230 0000FBB4  done
+    //00000021 004EF5CE 00001C62 new code
+    //00000022 004EEF12 000006BC
+    //00000023 004EE780 00000792
+    //00000024 004EE08E 000006F2
+    //00000025 004ED284 00000E0A
+    //00000026 004ECB92 000006F2
+    //00000027 004EBD88 00000E0A
+    //00000028 004EB6DE 000006AA
+    //00000029 004EAF5E 00000780
+    //0000002A 004EA85A 00000704
+    //0000002B 004EA110 0000074A
+    //0000002C 004E9A0C 00000704
+    //0000002D 004E92C2 0000074A
+    //0000002E 004E8BD0 000006F2
+    //0000002F 004E7DC6 00000E0A
+    //00000030 004E771C 000006AA
+    //00000031 004E6F8A 00000792
+    //00000032 004E6898 000006F2
+    //00000033 004E613C 0000075C
+    //00000034 004E5A5C 000006E0
+    //00000035 004E4C40 00000E1C
+    //00000036 004E45A8 00000698
+    //00000037 004E3E16 00000792
+    //00000038 004E3712 00000704
+    //00000039 004E2FC8 0000074A
+    //0000003A 004E28D6 000006F2
+    //0000003B 004E217A 0000075C
+    //0000003C 004E1A9A 000006E0
+    //0000003D 004E1350 0000074A
+    //0000003E 004E0C5E 000006F2
+    //0000003F 004DFE54 00000E0A
+    if(0)
+    {
+        while(1)
+        {
+            for(ra=0;ra<64;)
+            {
+                while((GET8(PAIN_L)&0x40)==0x40) continue;
+                rb=GET32(SYST_CVR);
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rc=GET32(SYST_CVR);
+                rx[ra++]=(rb-rc)&SYST_MASK;
+            }
+            rc=rx[ra-1];
+            while(1)
+            {
+                while((GET8(PAIN_L)&0x40)==0x40)
+                {
+                    rb=GET32(SYST_CVR);
+                    rd=(rc-rb)&SYST_MASK;
+                    if(rd>3000000) break;
+                }
+                if(rd>3000000) break;
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rc=GET32(SYST_CVR);
+            }
+            rd=ra;
+            hexstring(rd);
+            for(ra=0;ra<rd;ra++)
+            {
+                hexstrings(ra);
+                hexstring(rx[ra]);
+            }
+        }
+    }
+    //00000040
+    //00000000 00001C72
+    //00000001 00000790 0
+    //00000002 00000E1A 1
+    //00000003 00000E62 1
+    //00000004 00000790 0
+    //00000005 00000748 0
+    //00000006 00000736 0
+    //00000007 00000E1A 1
+    //00000008 00000790 0
+    //00000009 0000075A 0
+    //0000000A 00000E08 1
+    //0000000B 00000736 0
+    //0000000C 00000748 0
+    //0000000D 0000075A 0
+    //0000000E 00000748 0
+    //0000000F 00000DF6 1
+    //00000010 00001C72
+    //00000011 00000790
+    //00000012 00000E08
+    //00000013 00000E50
+    //00000014 000007A2
+    //00000015 00000748
+    //00000016 00000748
+    //00000017 00000E08
+    //00000018 000007A2
+    //00000019 0000075A
+    //0000001A 00000E1A
+    //0000001B 00000790
+    //0000001C 0000075A
+    //0000001D 00000748
+    //0000001E 00000748
+    //0000001F 00000E08
+    //00000020 00001C60
+    //00000021 00000790
+    //00000022 00000DF6
+    //00000023 00000E3E
+    //00000024 00000790
+    //00000025 0000075A
+    //00000026 00000748
+    //00000027 00000E08
+    //00000028 00000790
+    //00000029 00000748
+    //0000002A 00000E08
+    //0000002B 000007A2
+    //0000002C 00000748
+    //0000002D 00000748
+    //0000002E 0000075A
+    //0000002F 00000E1A
+
+    if(0)
+    {
+        unsigned int min,max;
+        min=0; min--;
+        max=0;
+        while(1)
+        {
+            while((GET8(PAIN_L)&0x40)==0x40) continue;
+            rb=GET32(SYST_CVR);
+            while((GET8(PAIN_L)&0x40)==0x00) continue;
+            rc=GET32(SYST_CVR);
+            rd=(rb-rc)&SYST_MASK; //sync
+            if(rd<0x1B00) continue;
+            if(rd>0x1D80) continue;
+            while((GET8(PAIN_L)&0x40)==0x40) continue;
+            rb=GET32(SYST_CVR);
+            rd=(rc-rb)&SYST_MASK; //sync return
+            if(rd>max) max=rd;
+            if(rd<min) min=rd;
+            hexstrings(min);
+            hexstring(max);
+        }
+    }
+    //00000644 000006C2
+
+
+
+    //here is a quick and dirty decoder for the sony sirc code
+    //3000000 * 0.002400 = 7200 = 0x1C20
+    //3000000 * 0.001200 = 3600 = 0xE10
+    //3000000 * 0.000600 = 1800 = 0x708
+    //3000000 * 0.045000 = 135000 = 0x20F58
+    if(0)
+    {
+        unsigned int code;
+        code = 0;
+        while(1)
+        {
+            while((GET8(PAIN_L)&0x40)==0x40) continue;
+            rb=GET32(SYST_CVR);
+            while((GET8(PAIN_L)&0x40)==0x00) continue;
+            rc=GET32(SYST_CVR);
+            rd=(rb-rc)&SYST_MASK; //sync burst
+            //if(rd<0x1B00) continue;
+            if(rd<0x1B80) continue;
+            if(rd>0x1D00) continue;
+            code=0;
+            for(ra=0;ra<15;ra++)
+            {
+                while((GET8(PAIN_L)&0x40)==0x40) continue;
+                rb=GET32(SYST_CVR);
+                rd=(rc-rb)&SYST_MASK; //pause
+                if(rd>0x800) break;
+                if(rd<0x600) break;
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rc=GET32(SYST_CVR);
+                rd=(rb-rc)&SYST_MASK; //burst
                 code<<=1;
-                if(rd>0x800) code|=1;
+                if(rd>0x900) code|=1;
+                if(rd>0x1000) break;
+            }
+            hexstring(code);
+        }
+    }
+
+
+    if(0)
+    {
+        unsigned int x;
+        unsigned int code;
+        code = 0;
+        //while(1)
+        {
+            for(x=0;x<64;x++)
+            {
+                rc=GET32(SYST_CVR);
+                while((GET8(PAIN_L)&0x40)==0x40) continue;
+                rb=GET32(SYST_CVR);
+                rd=(rc-rb)&SYST_MASK; //sync burst
+                if(rd>3000000) break;
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rc=GET32(SYST_CVR);
+                rd=(rb-rc)&SYST_MASK; //sync burst
+                //if(rd<0x1B00) continue;
+                if(rd<0x1B80) continue;
+                if(rd>0x1D00) continue;
+                code=0;
+                for(ra=0;ra<15;ra++)
+                {
+                    while((GET8(PAIN_L)&0x40)==0x40) continue;
+                    rb=GET32(SYST_CVR);
+                    rd=(rc-rb)&SYST_MASK; //pause
+                    if(rd>0x800) break;
+                    if(rd<0x600) break;
+                    while((GET8(PAIN_L)&0x40)==0x00) continue;
+                    rc=GET32(SYST_CVR);
+                    rd=(rb-rc)&SYST_MASK; //burst
+                    code<<=1;
+                    if(rd>0x900) code|=1;
+                    if(rd>0x1000) break;
+                }
+                rx[x]=code;
+            }
+            for(ra=0;ra<x;ra++)
+            {
+                hexstrings(ra);
+                hexstring(rx[ra]);
             }
         }
     }
 
 
+    if(0)
+    {
+        while(1)
+        {
+            while(1)
+            {
+                while((GET8(PAIN_L)&0x40)==0x40) continue;
+                rb=GET32(SYST_CVR);
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rc=GET32(SYST_CVR);
+                rd=(rb-rc)&SYST_MASK; //sync burst
+                //if(rd<0x1B00) continue;
+                if(rd<0x1B80) continue;
+                if(rd>0x1D00) continue;
+                break;
+            }
+            ra=0;
+            while(1)
+            {
+                while((GET8(PAIN_L)&0x40)==0x40)
+                {
+                    rb=GET32(SYST_CVR);
+                    rd=(rc-rb)&SYST_MASK;
+                    if(rd>3000000) break;
+                }
+                if(rd>3000000) break;
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rc=GET32(SYST_CVR);
+                rd=(rb-rc)&SYST_MASK; //sync burst
+                //if(rd<0x1B00) continue;
+                if(rd<0x1B80) continue;
+                if(rd>0x1D00) continue;
+                ra++;
+            }
+            hexstring(ra);
+        }
+    }
 
 
+    if(1)
+    {
+        unsigned int code;
+        unsigned int state;
+        unsigned int codes;
+        code = 0;
+        state = 0;
+        codes = 0;
+        rc=GET32(SYST_CVR);
+        while(1)
+        {
 
+            while((GET8(PAIN_L)&0x40)==0x40)
+            {
+                rb=GET32(SYST_CVR);
+                rd=(rc-rb)&SYST_MASK;
+                if(rd>3000000)
+                {
+                    if(state)
+                    {
+                        hexstring(codes);
+                        for(ra=0;ra<codes;ra++)
+                        {
+                            hexstrings(ra);
+                            hexstring(rx[ra]);
+                        }
+                        state=0;
+                        codes=0;
+                    }
+                }
+            }
+            rb=GET32(SYST_CVR);
+            while((GET8(PAIN_L)&0x40)==0x00) continue;
+            rc=GET32(SYST_CVR);
+            rd=(rb-rc)&SYST_MASK; //sync burst
+            //if(rd<0x1B00) continue;
+            if(rd<0x1B80) continue;
+            if(rd>0x1D00) continue;
+            code=0;
+            state=1;
+            for(ra=0;ra<15;ra++)
+            {
+                while((GET8(PAIN_L)&0x40)==0x40) continue;
+                rb=GET32(SYST_CVR);
+                rd=(rc-rb)&SYST_MASK; //pause
+                if(rd>0x800) break;
+                if(rd<0x600) break;
+                while((GET8(PAIN_L)&0x40)==0x00) continue;
+                rc=GET32(SYST_CVR);
+                rd=(rb-rc)&SYST_MASK; //burst
+                code<<=1;
+                if(rd>0x900) code|=1;
+                if(rd>0x1000) break;
+            }
+            //hexstring(code);
+            if(codes<64) rx[codes++]=code;
+        }
+    }
+    //and this is basically it single button presses on this
+    //particular remote result in a burst of codes  some of them
+    //interestingly have this 5121 pattern others do not.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //12345678
+    //00000006
+    //00000000 00003121
+    //00000001 00003121
+    //00000002 00003121
+    //00000003 00005121
+    //00000004 00005121
+    //00000005 00005121
+    //00000006
+    //00000000 00003121
+    //00000001 00003121
+    //00000002 00003121
+    //00000003 00005121
+    //00000004 00005121
+    //00000005 00005121
+    //00000006
+    //00000000 00001621
+    //00000001 00001621
+    //00000002 00001621
+    //00000003 00005121
+    //00000004 00005121
+    //00000005 00005121
+    //00000007
+    //00000000 00005621
+    //00000001 00005621
+    //00000002 00005621
+    //00000003 00005621
+    //00000004 00005121
+    //00000005 00005121
+    //00000006 00005121
+    //00000007
+    //00000000 00007121
+    //00000001 00007121
+    //00000002 00007121
+    //00000003 00007121
+    //00000004 00005121
+    //00000005 00005121
+    //00000006 00005121
+    //00000006
+    //00000000 00000A21
+    //00000001 00000A21
+    //00000002 00000A21
+    //00000003 00005121
+    //00000004 00005121
+    //00000005 00005121
+    //00000004
+    //00000000 00006421
+    //00000001 00006421
+    //00000002 00006421
+    //00000003 00006421
+    //00000004
+    //00000000 00002421
+    //00000001 00002421
+    //00000002 00002421
+    //00000003 00002421
+    //00000006
+    //00000000 00001421
+    //00000001 00001421
+    //00000002 00001421
+    //00000003 00005121
+    //00000004 00005121
+    //00000005 00005121
+    //00000006
+    //00000000 00005821
+    //00000001 00005821
+    //00000002 00005821
+    //00000003 00005121
+    //00000004 00005121
+    //00000005 00005121
 
 
 
