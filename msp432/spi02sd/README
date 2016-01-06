@@ -1,0 +1,19 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+Have one of these
+
+https://www.sparkfun.com/products/544
+
+Working on learning how to talk to a microsd/transflash card.
+
+work in progress, not working yet.
+
+spi is bit banged for now
+
+    //P4.0 CE out
+    //P4.1 CLK out
+    //P4.2 MOSI out
+    //P4.3 MISO in
+
