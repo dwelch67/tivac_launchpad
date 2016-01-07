@@ -1,0 +1,70 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+This code uses the ARM's systick timer.
+
+With an erased user flash the BSL is likely running and it appears to
+have the ARM clock set to 12MHz.  With the timer set to roll over at
+12,000,000 ticks, wait for 10 rollovers and that is 10 seconds the
+led changes state every 10 seconds.
+
+The as-shipped app appears to be running at 3MHz which is a strange number
+10 times counting to 12 million took 40 seconds. 120million/40 = 3
+million ticks per second.  Dumping regs it does appear that we are running
+off of DCO clock and it is set to 3MHz.  At least the as-shipped firmware
+that my board came with.
+
+If you use the flash01 example it will leave it to boot into the bsl
+which sets the clock to 12MHz.  If you run flash02 then when you reset
+you will be left running at 3MHz, and the blink rates in this example
+take 4 times longer.
+
+This example is a simple demonstration of Timer32.  Being used here
+as a 32 bit timer.  There are actually four sub examples within this
+one example.
+
+The first sets the timer into free-running/wrap around mode.  The
+led should change state every 0x0800000 ticks of this timer.  If you
+started at 12MHz this comes to about 11 seconds, if 3Mhz then 44
+seconds.
+
+The second example sets it as a periodic timer.  Sets the period to
+48000000 ticks or 4 seconds per led state change at 12MHz.  It uses
+the interrupt status in the peripheral to see the end of the period,
+but the interrupt stops there.
+
+The third example is the same as the second except it allows the
+interrupt into the NVIC, but the processor interrupts were disabled
+when this code started (cpsid i) so the processor is not interrupted,
+we are polling but polling the NVIC.
+
+The fourt example is the same as the third except it does allow the
+processor to get and handle the interrupt.  This example for now is
+setup to run using jtag in sram.  At address 0x01000000.  
+
+The vector table as we know starts with the stack address, then has
+15 system vectors, reset, nmi, etc.  Then exception number 16 is where
+external interrupt (external to the cortex-m4 core, but likely still
+inside the chip itself) 0 starts.  So interrupt 25 which is the Timer32
+timer 1 interrupt is at exception 16+25 or (16+25)*4 = 0xA4 offset
+into the vector table.  If we play some games we can get the assembler
+to place a table at offset 0x01000100, and then have the interrupt
+handler land at 0x010001A4.
+
+ 100019c:	01000011 	tsteq	r0, r1, lsl r0
+ 10001a0:	01000011 	tsteq	r0, r1, lsl r0
+ 10001a4:	01000201 	tsteq	r0, r1, lsl #4
+ 10001a8:	01000011 	tsteq	r0, r1, lsl r0
+ 10001ac:	01000011 	tsteq	r0, r1, lsl r0
+ 10001b0:	01000011 	tsteq	r0, r1, lsl r0
+ 10001b4:	01000011 	tsteq	r0, r1, lsl r0
+
+01000200 <interrupt_25_handler>:
+ 1000200:	2201      	movs	r2, #1
+
+the cpsie i instruction is used to enable the nvic interrupts into the
+processor.  And whenever the timer interrupts then the handler
+toggles the led and cleans up the pending interrupt signal.
+
+
