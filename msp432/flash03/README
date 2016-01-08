@@ -1,0 +1,11 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+same as flash02 but has even less stuff in the blinker binary turns
+off WDT and thats it doesnt change the gpio.
+
+Takes a few seconds to run, after running once, and reset/power cycle
+to run the new flash.  you can uncomment uart_init(), set for 3MHz and
+watch the output, if you didnt see it the first time.
+

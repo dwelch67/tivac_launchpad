@@ -1,0 +1,78 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+Derived from blinker02.
+
+Now we mess with clocks.  ti makes this pretty easy in some respects.
+In others not so much.
+
+Not specific to ti or this chip, historically this is where you brick
+boards.  There is often a delicate sequence of steps you must go through
+sometimes you have to wait for something to settle before you switch
+it to the next section, then wait for that and so on.  If you get to
+lazy/eager you can switch the system over to a not setup clock and
+brick it, and sometimes brick it to the point that jtag cant recover.
+Chips that have a strap that allow you to select an alternate bootloader
+are often recoverable.  If not you should seriously consider making
+your own strap AND TESTING IT, before starting to mess with the
+clock system.  Unfortunately the documents rarely tell you the right
+steps, sometimes you can extract that from their examples, sometimes
+not.
+
+Other general things to think about.  Some chip vendors and products
+have speed limits on the ram or flash, maybe you have a 120mhz part
+but the flash may be 30mhz and you need 3 or 4 wait states to keep
+the flash from being sampled to fast (and giving corrupt/bad data and
+crashing or bricking the mcu).  An example from ti shows that for 48
+MHz they wanted 2 wait states, I dont see in the docs (yet) where it
+tells you what the speed limit is for each wait state setting.  So
+perhaps 24mhz needs 1 and 12 and slower zero is okay?
+
+Likewise some or all of the peripherals may have a speed limit and you
+may have to either keep the main clock at or below that or use the
+right divisors in the right place.
+
+Any of these things so far can easily brick a chip if done wrong.  This
+example is only building an sram version and I am loading via jtag to
+run this program.  I ran the flash03 example before this which leaves
+the arm in a loop, so it is using the power on 3Mhz DCO clock.  So if I
+mess up and brick it, then I simply reset and it goes back to the
+dumb loop an I can try again.  This approach has a risk, esp for this
+chip.  This program is running out of ram which so far does not appear
+to have a wait state setting which implies it can run at the full speed
+of the core, 48MHz.  If you get your clock init working in ram only
+then switch to flash for that init and forget to figure out and set the
+wait states on the flash, even if your clock init is right, you still
+brick the mcu.  For testing on the flash, use a strap pin for an
+alternate boot path, or if your mcu has a built in way to boot to a
+bootloader, or some mcus have a programming mode that is accessed when
+the part is in reset (AVR), thus implying that no matter what program
+you have in flash you can still reprogram the part.
+
+Some chip vendors and product lines use clock enables to keep the
+power consumption down making it a challenge the first time you see
+this to even blink an led, as you have to enable in an completely
+different part of the documentation, the clock to that gpio block.
+This chip has a power control manager and there are rules for how
+fast you can clock the cpu and the peripherals based on the power mode.
+The chip naturally boots in the lowest power mode where the cpu
+has a max of 24Mhz and the peripherals 12Mhz.  So if we dont mess with
+power modes we can go up to 12MHz for everything.  Combine that with
+the assumption that we dont need to change the flash wait states for
+12mhz. (confirmed by another ti example for 12mhz that doesnt mess with
+PCM nor FLASH).
+
+Probably why the BSL runs at 12mhz as well.
+
+This board has a 48MHz crystal tied to the msp432, and I learned some
+of the above trying to get that up and running, and was bricking the
+chip it appeared many times.  So I may come back to this later but for
+now it appears we can easily and safely go to 12MHz using the internal
+oscillator.
+
+So this example uses the internal DCO and sets it to 12MHz.
+
+Now the led changes states every 10 seconds
+
+120,000,000/10 = 12,000,000  or 12MHz.
