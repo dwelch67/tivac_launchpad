@@ -1,0 +1,20 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+If you are running with the as-shipped firmware then you can leave
+uart_init uncommented.  It is already setup to work. Mine was shipped
+using DCOCLK at 3MHz, so if you want to use the uart init change the
+baud rate divisor register as noted in the code.
+
+If you have run flash01 and wiped the main flash so that the bsl is
+now running, then you need to uart init so uncomment the uart init,
+which uses a divisor for 12mhz.
+
+/dev/ttyACM0 is where I find the uart data
+
+This example also uses uart2.  Whatever comes in uart0 rx goes out
+uart2 tx, whatever comes in uart2 rx goes out uart0 tx.  So if you
+connect uart2 tx and rx (p3.2 to p3.3), then what you type in
+/dev/ttyACM0 goes out uart2, back in and echos out uart0.  if you
+remove the jumper then it stops, put it back and it will work again.
