@@ -1,0 +1,13 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+This is for a SAMSUNG BN59-00851A remote
+
+Which is kinda like the RCA but not exactly.
+
+http://www.vishay.com/docs/80071/dataform.pdf
+http://www.sbprojects.com/knowledge/ir/
+
+This code expects you to run flash02 first and reset to leave the
+msp432 at 3MHZ.
