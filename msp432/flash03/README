@@ -9,3 +9,35 @@ Takes a few seconds to run, after running once, and reset/power cycle
 to run the new flash.  you can uncomment uart_init(), set for 3MHz and
 watch the output, if you didnt see it the first time.
 
+I added this to the vector table
+
+.thumb_func
+.global _start
+_start:
+stacktop: .word 0x20001000
+.word reset
+.word 0x01000003
+.word 0x01000005
+.word 0x01000007
+.word 0x01000009
+.word 0x0100000B
+.word 0x0100000D
+
+So that sram based programs can use a branch (not branch link) to
+hop to the handler.
+
+.thumb_func
+.global _start
+_start:
+    b reset
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+
+I dont know if I added enough items in the vector table, each
+cortex-m core and/or implementation potentially has a different number
+of interrupts, I didnt do the research to find out how many I needed
+here.  Was only after the systick initially which is very early in
+the list.

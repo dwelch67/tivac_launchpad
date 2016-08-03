@@ -1,0 +1,230 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+This example relies on flash03 which has these items in the vector table
+basically everything but reset points at sram.  Didnt research how many
+vectors so maybe it needs to be deeper, but is deep enough for this
+example.
+
+
+.thumb_func
+.global _start
+_start:
+stacktop: .word 0x20001000
+.word reset
+.word 0x01000003
+.word 0x01000005
+.word 0x01000007
+.word 0x01000009
+.word 0x0100000B
+.word 0x0100000D
+....
+
+and this sram code needs to use one instruction/halfword per entry
+so basically has to be a branch (not branch link)
+
+    b reset
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+...
+
+
+You can of course flash a derivative of this example.  It also relies
+on flash03 to set the clock, the uart divisor is based on that clock.
+
+On stackoverflow folks keep asking about where to find the interrupted
+address on the stack within a handler.  And we keep hearing about there
+being two stacks and that is why they cant find what they are looking
+for.  I have never had to setup an alternate stack on a cortex-m yet
+have used interrupts.
+
+The ARMv7m Architectural Reference Manual says
+
+An M-profile processor supports two operating modes:
+
+Thread mode
+    Is entered on reset, and can be entered as a result of an exception
+    return.
+Handler mode
+    Is entered as a result of an exception
+
+It also says
+
+
+An ARMv7-M processor implements two stacks:
+    The Main stack, SP_main or MSP.
+    The Process stack, SP_process or PSP.
+
+
+Then in the CONTROL register definition one bit says
+
+SPSEL, bit[1]   Defines the stack to be used:
+    0   Use SP_main as the current stack.
+    1   In Thread mode, use SP_process as the current stack.
+        In Handler mode, this value is reserved.
+
+As documented you can use mrs to read and msr to write these registers
+
+    mrs r0,psp
+    mrs r0,msp
+    mrs r0,CONTROL
+
+A simple mov
+
+    mov r0,sp
+
+Will get access to whichever one is banked.
+
+I tried this with the systick interrupt.
+
+Openocd confirms that we are in Thread mode
+
+target halted due to debug-request, current mode: Thread
+
+This code changed over the course of the experiments.
+
+I have some code to dump registers:
+
+20000000 APSR
+00000000 IPSR
+00000000 EPSR
+00000000 CONTROL
+00000000 SP_PROCESS
+20000D00 SP_PROCESS after I modified it
+20000FF0 SP_MAIN
+20000FF0 mov r0,sp
+
+then I dump the stack up to 0x20001000 which is where I know my stack
+started
+
+20000FF0 00000000
+20000FF4 00000000
+20000FF8 00000000
+20000FFC 0100005F
+
+I setup and wait for a systick interrupt, the handler dumps registers
+and ram and then goes into an infinite loop.  Bad practice in general
+but just debugging/learning here. Before the interrupt I prep some
+registers:
+
+.thumb_func
+.globl iwait
+iwait:
+    mov r0,#1
+    mov r1,#2
+    mov r2,#3
+    mov r3,#4
+    mov r4,#13
+    mov r12,r4
+    mov r4,#15
+    mov r14,r4
+    b .
+
+and in the handler I see
+
+20000000 APSR
+0000000F IPSR
+00000000 EPSR
+00000000 CONTROL
+20000D00 SP_PROCESS
+20000FC0 SP_MAIN
+20000FC0 mov r0,sp
+20000FC0 0000000F
+20000FC4 20000FFF
+20000FC8 00000000
+20000FCC FFFFFFF9  this is our special lr
+20000FD0 00000001  this is r0
+20000FD4 00000002  this is r1
+20000FD8 00000003  this is r2
+20000FDC 00000004  this is r3
+20000FE0 0000000D  this is r12
+20000FE4 0000000F  this is r14/lr
+20000FE8 01000074  and this is where we were interrupted from
+20000FEC 21000000  this is probably the xpsr mentioned
+20000FF0 00000000  stuff that was there before
+20000FF4 00000000
+20000FF8 00000000
+20000FFC 0100005F
+
+The special return address which is mostly ones is how the logic knows
+to return from a handler and restore state
+
+The location of things at the time of the above was
+
+01000064 <iwait>:
+ 1000064:   2001        movs    r0, #1
+ 1000066:   2102        movs    r1, #2
+ 1000068:   2203        movs    r2, #3
+ 100006a:   2304        movs    r3, #4
+ 100006c:   240d        movs    r4, #13
+ 100006e:   46a4        mov ip, r4
+ 1000070:   240f        movs    r4, #15
+ 1000072:   46a6        mov lr, r4
+ 1000074:   e7fe        b.n 1000074 <iwait+0x10>
+ 1000076:   bf00        nop
+
+ 1000074 is the location of the infinite loop where we would need
+ to return from the handler.
+
+So we can see that as the ARM documentation says from reset state we
+are using sp_main and not using sp_process.
+
+Now, if I set the SPSEL bit (be careful to set the PSP first), it
+appears that a mov r0,sp in application/thread mode uses the PSP not
+MSP.  But then the handler uses msp for a mov r0,sp but appears to put
+the
+
+before in thread/foreground
+
+20000000 APSR
+00000000 IPSR
+00000000 EPSR
+00000000 SP_PROCESS
+20000D00 SP_PROCESS modified
+00000000 CONTROL
+00000002 CONTROL modified
+20000FF0 SP_MAIN
+20000D00 mov r0,sp
+
+now in the handler
+
+20000000 APSR
+0000000F IPSR
+00000000 EPSR
+00000000 CONTROL (interesting!)
+20000CE0 SP_PROCESS
+20000FE0 SP_MAIN
+20000FE0 mov r0,sp
+dump of that stack
+20000FE0 0000000F
+20000FE4 20000CFF
+20000FE8 00000000
+20000FEC FFFFFFFD
+20000FF0 00000000
+20000FF4 00000000
+20000FF8 00000000
+20000FFC 0100005F
+dump of sp_process stack
+20000CE0 00000001
+20000CE4 00000002
+20000CE8 00000003
+20000CEC 00000004
+20000CF0 0000000D
+20000CF4 0000000F
+20000CF8 01000074 our return value
+20000CFC 21000000
+
+So to be in this position of dealing with the alternate stack that
+folks keep mentioning, you have to put yourself in that position (or
+some code you rely on).  Why you would want to do that for simple bare
+metal programs, who knows, the control register of all zeros is nice
+and easy, can share one stack just fine.
