@@ -1,0 +1,138 @@
+
+See the previous level README for schematic and programmers reference
+information.
+
+This is a simple task switcher.
+
+This example relies on flash03 which has these items in the vector table
+basically everything but reset points at sram.  Didnt research how many
+vectors so maybe it needs to be deeper, but is deep enough for this
+example.
+
+
+.thumb_func
+.global _start
+_start:
+stacktop: .word 0x20001000
+.word reset
+.word 0x01000003
+.word 0x01000005
+.word 0x01000007
+.word 0x01000009
+.word 0x0100000B
+.word 0x0100000D
+....
+
+and this sram code needs to use one instruction/halfword per entry
+so basically has to be a branch (not branch link)
+
+    b reset
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+    b handler
+...
+
+
+You can of course flash a derivative of this example.  It also relies
+on flash03 to set the clock, the uart divisor is based on that clock.
+Or in other words, flash03 leaves you with the as-reset clock and
+not some multplied clock.
+
+Using the stack example knowledge, we basically know that the "other"
+stack pointer is not used unless we do the work to make it used, we
+dont want the other stack pointer, stick with one.
+
+The systick or other handlers are going to see that the hardware
+put the things on the stack that the ARM docs said would be there
+
+
+20000FD0 00000001  this is r0
+20000FD4 00000002  this is r1
+20000FD8 00000003  this is r2
+20000FDC 00000004  this is r3
+20000FE0 0000000D  this is r12
+20000FE4 0000000F  this is r14/lr
+20000FE8 01000074  and this is where we were interrupted from
+20000FEC 21000000  this is probably the xpsr mentioned
+20000FF0 00000000  stuff that was there before
+20000FF4 00000000
+20000FF8 00000000
+20000FFC 0100005F
+
+And the link register is going to be mostly ones
+
+20000FCC FFFFFFF9  this is our special lr
+
+to tell the logic we are returning from a handler and to pop that
+other stuff off the stack.
+
+So if we want to setup a very simple multitasker.  In addition to
+switching out the above we need to preserve and switch out the rest
+of the registers.  Actually, we need separate stacks for each of the
+tasks, so we just need to put these items on the current tasks stack
+and the switch stack pointers.
+
+So if we look at what has to happen on each task switch timer interrupt.
+I know this is a cortex-m4 and has tons of thumb2 options, but wont
+use thumb2 extensions.  So we need to save 4-11 and then swap stack
+pointers.
+
+push {r4,r5,r6,r7}
+mov r4,r8
+mov r5,r9
+mov r6,r10
+mov r7,r11
+push {r4,r5,r6,r7}
+switch stack pointers to another thread
+pop {r4,r5,r6,r7}
+mov r8,r4
+mov r9,r5
+mov r10,r6
+mov r11,r7
+pop {r4,r5,r6,r7}
+bx lr
+
+In order for that to work then for each thread we need to find some
+stack space.  Put 16 things on the stack.  If we use a function as
+a thread entry point, then almost all of the registers are dont cares
+going into that function.
+
+r4 - r11
+20000xxx xxxxxxxx
+20000xxx xxxxxxxx
+20000xxx xxxxxxxx
+20000xxx xxxxxxxx
+20000xxx xxxxxxxx
+20000xxx xxxxxxxx
+20000xxx xxxxxxxx
+20000xxx xxxxxxxx
+
+20000xxx xxxxxxxx  this is r0
+20000xxx xxxxxxxx  this is r1
+20000xxx xxxxxxxx  this is r2
+20000xxx xxxxxxxx  this is r3
+20000xxx xxxxxxxx  this is r12
+20000xxx xxxxxxxx  this is r14/lr
+20000xxx 01000074  thread entry address
+20000xxx 21000000  this is probably the xpsr mentioned
+
+probably good for the r14/lr address to point at something in case
+the thread function returns, something like
+
+hang: b hang
+
+From the stack example we see that the address that was interrupted
+does not have/need the lsbit set.  But r14/lr will need the lsbit
+set so bx lr can be used.
+
+------------
+
+Have a bug to work out, but it is pretty close.
+
