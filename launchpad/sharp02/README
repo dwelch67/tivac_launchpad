@@ -1,0 +1,12 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+Derived from sharp01
+
+This one is a gps clock receives 4800 baud nmea on uart3 rx.  And
+then I broke the display, the ribbon underneath that connects
+the display to the board, something is unhappy there.  Can get it to work
+if I press on it, but not all the time.
+
