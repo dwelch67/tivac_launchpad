@@ -61,6 +61,9 @@ git clone http://github.com/utzig/lm4tools.git
 cd lm4tools/lm4flash
 make
 
+Hmm, apt-get install lm4flash
+
+
 I am using the micro usb port on the top of the board which is labelled
 debug.  And I slide the switch on the board over to the debug side.
 

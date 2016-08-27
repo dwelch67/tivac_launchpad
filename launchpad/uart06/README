@@ -1,0 +1,10 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+Derived from uart05
+
+This is a skeleton for uart based programs.
+
+Boosts the processor to 80Mhz.
