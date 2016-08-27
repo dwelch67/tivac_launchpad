@@ -1,0 +1,58 @@
+
+See top level README for more information about schematics and the
+datasheet for this microcontroller.  And information on how to load
+programs into the microcontroller.
+
+Derived from uart06
+
+These are very cool.  I got one I think for the msp430 first and
+messed with that and by design it works on the other launchpads
+as well.
+
+Sharp Memory LCD BoosterPack
+30BOOST-SHARP96
+
+Adafruit has a board with the same display for twice the money.
+
+https://www.adafruit.com/products/1393
+
+Can use the ti version of the display anywhere, doesnt have to be
+on a launchpad, just shove some pins in.
+
+Based on the LS013B4DN04 display from sharp.  It is as the Adafruit
+page says somewhere between an e-ink and lcd display.  I still dont
+know what the "memory" part of the display means maybe they do some
+lower power trickery.  It is so low power I thought it was e-ink-ish
+for a while, that with the power off it kept the same image, but
+it was just the bulk capacitance from either/both of the boards, pulling
+the power from the launchpad and the display stays "on" with whatever
+was on there last.  But wait a while (minutes?) and it eventually drains
+the storage and goes off.
+
+Uses the outer original booster rows of pins
+
+
+launchpad   display
+1.01 3.3V   3.3V
+1.02 PB5    LCD Power Control
+1.03 PB0
+1.04 PB1
+1.05 PE4    LCD Enable
+1.06 PE5    SPI CS
+1.07 PB4    SPI CLK
+1.08 PA5    slider
+1.09 PA6    slider
+1.10 PA7    slider
+
+2.01 GND    GND
+2.02 PB2    Extern COM Inversion
+2.03 PE0
+2.04 PF0
+2.05 RESET
+2.06 PB7    SPI MOSI
+2.07 PB6
+2.08 PA4    slider
+2.09 PA3    slider
+2.10 PA2    slider
+
+
