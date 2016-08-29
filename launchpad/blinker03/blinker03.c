@@ -35,8 +35,6 @@ void notmain ( void )
 {
     unsigned int ra;
     unsigned int rb;
-    unsigned int rc;
-    unsigned int lasttime,nowtime;
 
     //GPIO (led) init
     ra=GET32(RCGCGPIO);
