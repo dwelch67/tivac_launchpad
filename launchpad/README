@@ -1,59 +1,52 @@
 
-
 Tiva C Launchpad Bare Metal Examples
 
-This directory tree is for the simpler launchpad.  Not the connected
-one, the one that does not have the ethernet connector.  currently
-called the EK-TM4C123GXL
-
-Over time I hope to re-write this.  At the time ti still used the
-stellaris name for the cortex-m family, now they use Tiva C instead.
+www.ti.com/launchpad
 
 
+This directory tree is for the simpler Tiva C launchpad.
+Not the connected one, although currently you navigate from the
+above page using the connected launchpad to the one currently
+called the EK-TM4C123GXL.
 
+ti bought a company called Luminary Micro that had a stellaris product
+line, AFAIK the first cortex-m products to hit the market.  Over time
+they replaced the stellaris name and lm4* product numbers to be
+the Tiva C product line.
 
+So this started off as a stellaris launchpad example and is now based
+on the current names.
 
+This is the current link.  We all know that links can/do change.
 
+http://www.ti.com/ww/en/launchpad/launchpads-connected-ek-tm4c123gxl.html
 
+So you can search for EK-TM4C123GXL perhaps if needed, the name of the
+evaluation kit/board.   The microcontroller on that board is currently
+the TM4C123GH6PM  which you can follow the link to or search for.
 
+Currently under the board there is a users guide that you may want for
+the schematic and pinouts, although the pinouts are shown in the
+silkscreen.
 
+Under the part I currently see the datasheet, you definitely need this
+and there is a ti part errata and a cortex-m4 errata.  Understand you
+have to be very careful with errata to apply it correctly to the
+stepping of part you are using, you could easily be trying to apply
+workarounds to something that isnt broken or a workaround that in
+no way works or can be applied to the part you are using.
 
+You will also want the Architectural Reference Manual and the Technical
+Reference Manual for the cortex-m4 which uses architecture armv7-m.
 
+At this time I can simply
 
+apt-get lm4flash
 
-After a long wait while they were out of stock I finally received my
-stellaris launchpad today from ti.
-
-http://ti.com/stellaris-launchpad
-
-The documentation starts here
-
-http://www.ti.com/tool/ek-lm4f120xl
-
-You want the Stellaris LM4F120 LaunchPad Evaluation Kit User's Manual
-
-http://www.ti.com/litv/pdf/spmu289a
-
-And the datasheet for the LM4F120H5QR microcontroller
-
-http://www.ti.com/product/lm4f120h5qr
-
-TODO fill in links to arm docs.
-
-The users manual for the launchpad includes the schematics.
-
-
-Note that the Stellaris product which is now under ti used to be from
-a company named Luminary Micro, which is why you see LM in the part numbers
-or at least that is my theory, I do not and have never worked for either
-company.
-
-
-I use linux (at the moment Linux Mint), there is a utility out there
-that allows you to program these stellaris parts.  Here are the
-steps I had to use to compile the utility, you might need to install
-other packages.
-
+To get the tool I like to use to download programs to the target
+microcontroller.  If that doesnt work for you depending on your distro
+you can build it from sources.  No promises that this works nor that
+the dependencies have been met you may need to apt-get more stuff.
 
 apt-get install libusb-1.0.0-dev build-essential
 
@@ -61,33 +54,29 @@ git clone http://github.com/utzig/lm4tools.git
 cd lm4tools/lm4flash
 make
 
-Hmm, apt-get install lm4flash
+You also need a toolchain, see the TOOLCHAIN file one directory up.
 
+The blinker01 example shows how to use clang/llvm tools instead of gcc.
+Seems like every version of llvm you have to change the command line
+parameters to make it work.
 
 I am using the micro usb port on the top of the board which is labelled
 debug.  And I slide the switch on the board over to the debug side.
 
 Then I can load and run a new program using this command
 
-/path/to/lm4flash hello.bin
+lm4flash hello.bin
 
 The program is stored in the on chip flash so pressing the reset button
 or unplugging and replugging power (the usb port) the program will
 start or run again.
 
-I recommend you start with the blinker01 example.  My raspberrypi and
-mbed repos attempt to describe the bare metal approach that I use and
-how I use the gnu tools.  The blinker01 example and perhaps others as
-I write them also demonstrate the use of llvm+clang.  Llvm 3.1 adds
-a new feature where the backend conversion from bytecode to target code
-(generic internal stuff to ARM specific instructions) can now be assembled
-and output as an object file.  Prior to this the output was assembly
-language and you needed and assembler to get to object code.  Even with
-llvm+clang I use the gnu binutils tools for assembling as needed and
-for linking.
+I recommend you start with the blinker01 example.  My raspberrypi repo
+has a baremetal and bssdata directory with READMEs that describe how
+I use gnu tools.
 
-Over time there will be more blinker examples as I explore the different
-timers in the system and use them to measure time more accurately.
-Eventually will add a uart example or a few and so on as I go through
-the peripherals I am interested in.
+I like that you can get at the target uart through the debug interface
+on linux /dev/ttyACM0, the uart examples exploit that, no other boards
+are needed basically to do more advanced development.
+
 

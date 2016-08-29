@@ -41,7 +41,9 @@ is running, then configuring the individual port pins, input or output
 pull up or down or neither, alternate functions, etc.
 
 There is an interesting feature with this design that allows you to
-write to the GPIODATA register in a masked fasion so that the write
+write to the GPIODATA register in a masked fashion so that the write
 only targets certain bits (pins) and leaves the others unchanged.  I
 have used that feature in this example.
 
+The makefile includes an example of how to build using mostly clang/llvm
+with a little help from gnu binutils to link.
