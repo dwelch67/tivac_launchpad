@@ -6,3 +6,5 @@ programs into the microcontroller.
 Derived from uart01.  This is a good uart baseline, uart init, send,
 receive.  This example echos whatever is received.
 
+This does not modify the system clock, so the internal(?) clock
+is used.

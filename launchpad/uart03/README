@@ -12,5 +12,7 @@ interrupt status is polled (interrupts are not enabled/used) to see
 the roll over and prints something out the uart.  The leds are so
 painful on the (my) eyes that I wont use them.
 
+Uses the internal 16MHz clock (does not modify/initialize the clock).
+
 I so far have not been able to get the prescaler working, will keep trying.
 

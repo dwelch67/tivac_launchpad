@@ -1,15 +1,11 @@
 
-#ARMGNU=arm-thumb-elf
-#ARMGNU=arm-none-linux-gnueabi
 ARMGNU?=arm-none-eabi
-
-LOPS = -Wall -m32 -emit-llvm -ccc-host-triple $(ARMGNU)
+#ARMGNU=arm-linux-gnueabi
+#ARMGNU=arm-none-linux-gnueabi
 
 COPS = -Wall  -O2 -nostdlib -nostartfiles -ffreestanding
 
 AOPS = --warn --fatal-warnings
-
-
 
 gcc : uart06.gcc.thumb.bin uart06.gcc.thumb2.bin 
 
@@ -21,8 +17,7 @@ uart06.gcc.thumb.o : uart06.c
 	$(ARMGNU)-gcc $(COPS) -mthumb -c uart06.c -o uart06.gcc.thumb.o
 
 uart06.gcc.thumb2.o : uart06.c
-	$(ARMGNU)-gcc $(COPS) -mthumb -mcpu=cortex-m4 -c uart06.c -o uart06.gcc.thumb2.o
-	#$(ARMGNU)-gcc $(COPS) -mthumb -mcpu=cortex-m4 -march=armv7-m -c uart06.c -o uart06.gcc.thumb2.o
+	$(ARMGNU)-gcc $(COPS) -mthumb -mcpu=cortex-m4 -march=armv7e-m -c uart06.c -o uart06.gcc.thumb2.o
 
 uart06.gcc.thumb.bin : memmap vectors.o uart06.gcc.thumb.o
 	$(ARMGNU)-ld -o uart06.gcc.thumb.elf -T memmap vectors.o uart06.gcc.thumb.o

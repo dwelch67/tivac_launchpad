@@ -133,7 +133,7 @@ void hexstring ( unsigned int d )
 //------------------------------------------------------------------------
 void notmain ( void )
 {
-    unsigned int ra;
+    //unsigned int ra;
 
     uart_init();
     hexstring(0x87654321);

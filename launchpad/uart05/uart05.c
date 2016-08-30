@@ -179,7 +179,7 @@ void dowait ( void )
 //------------------------------------------------------------------------
 void notmain ( void )
 {
-    unsigned int ra;
+    //unsigned int ra;
 
     switch_to_80Mhz();
 
