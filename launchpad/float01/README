@@ -15,3 +15,9 @@ a couple of numbers.
     vmov r0,s0          ; copy s0 to r0
 
 Gnu assembler was complaining until I specified a -mfpu.
+
+I think the right answer is
+
+0x48435000
+
+and it used to work but isnt now...
