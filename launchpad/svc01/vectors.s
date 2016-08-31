@@ -54,7 +54,7 @@ dummy:
 svc_handler:
     push {r3,lr}
     bl hexstring
-    ldr r0,[sp,#0x1C] @ return address
+    ldr r0,[sp,#0x20] @ return address
     sub r0,r0,#2
     ldrh r0,[r0]
     mov r1,#0xFF

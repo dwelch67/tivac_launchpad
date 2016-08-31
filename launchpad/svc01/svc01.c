@@ -140,23 +140,6 @@ void notmain ( void )
     hexstring(0x87654321);
     hexstring(0x12345678);
 
-    PUT32(RCGCWTIMER,0x00000001);
-
-    PUT32(GPTMCTL,0);
-    PUT32(GPTMCFG,4);
-    //PUT32(GPTMTAMR,0x12); //up
-    PUT32(GPTMTAMR,0x02); //down
-    PUT32(GPTMTAILR,16000000-1);
-
-    PUT32(GPTMTBMR,0x02); //down
-    PUT32(GPTMTBILR,16000000-1);
-
-    PUT32(GPTMTAPR,0x0);
-    PUT32(GPTMTBPR,0x3);
-
-    PUT32(GPTMIMR,0);
-    PUT32(GPTMCTL,0x0101);
-
     for(ra=0x1000;ra<0x1100;ra++)
     {
         svc_test(ra);
