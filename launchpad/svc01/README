@@ -10,5 +10,6 @@ discourage the use of interrupts or svc/swi unless you really have a
 good reason.  And if you do use svc/swi perhaps this example demonstrates
 that you want to avoid using the immediate in the instruction.
 
-
-
+Think about the 16 bit all thumb variants, the armv7-m and newer thumb2
+extension and the full sized ARM instruction version of the svc/swi
+instruction and where that immediate lands.

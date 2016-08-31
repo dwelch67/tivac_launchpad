@@ -52,14 +52,15 @@ dummy:
 
 .thumb_func
 svc_handler:
-    push {lr}
+    push {r3,lr}
+    bl hexstring
     ldr r0,[sp,#0x1C] @ return address
     sub r0,r0,#2
     ldrh r0,[r0]
     mov r1,#0xFF
     and r0,r1
     bl hexstring
-    pop {pc}
+    pop {r3,pc}
 
 
 .thumb_func
