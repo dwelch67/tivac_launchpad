@@ -6,6 +6,7 @@ extern void PUT32 ( unsigned int, unsigned int );
 extern unsigned int GET32 ( unsigned int );
 
 extern unsigned int fun ( unsigned int, unsigned int );
+extern unsigned int ffun ( unsigned int, unsigned int );
 extern void fpu_init ( void );
 
 #define RCGCGPIO    0x400FE608
@@ -62,6 +63,15 @@ void uart_init ( void )
     PUT32(UARTCTL,0x00000301);
 }
 //------------------------------------------------------------------------
+void uart_flush ( void )
+{
+    while(1)
+    {
+        if(GET32(UARTFR)&0x80) break;
+    }
+    //PUT32(UARTDR,x);
+}
+//------------------------------------------------------------------------
 void uart_send ( unsigned int x )
 {
     while(1)
@@ -112,8 +122,11 @@ void notmain ( void )
     uart_init();
     hexstring(0x87654321);
     hexstring(0x12345678);
+    uart_flush();
     fpu_init();
     ra=fun(200,1000);
+    hexstring(ra);
+    ra=ffun(200,1000);
     hexstring(ra);
 
 }

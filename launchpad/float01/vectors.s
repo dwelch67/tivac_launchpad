@@ -40,6 +40,7 @@ dummy:
 .globl fpu_init
 fpu_init:
     ;@ basically straight from ti datasheet
+    ;@ set bits in CPAC
     ldr r0,=0xE000ED88
     ldr r1,[r0]
     ldr r2,=0xF00000
@@ -58,6 +59,18 @@ fun:
     vcvt.f32.u32 s1,s1
     vmul.f32 s0,s0,s1
     vcvt.u32.f32 s0,s0
+    vmov r0,s0
+    bx lr
+
+
+.thumb_func
+.globl ffun
+ffun:
+    vmov s0,r0
+    vcvt.f32.u32 s0,s0
+    vmov s1,r1
+    vcvt.f32.u32 s1,s1
+    vmul.f32 s0,s0,s1
     vmov r0,s0
     bx lr
 

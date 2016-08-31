@@ -16,8 +16,14 @@ a couple of numbers.
 
 Gnu assembler was complaining until I specified a -mfpu.
 
-I think the right answer is
+So it does the multiply then converts back to fixed point, 200*1000
+ = 0x30D40
 
-0x48435000
+remove the convert back to u32 and you get the floating point value
 
-and it used to work but isnt now...
+87654321
+12345678
+00030D40
+48435000
+
+
