@@ -143,12 +143,18 @@ static void hexstring ( unsigned int d )
 void notmain ( void )
 {
     unsigned int ra;
-    unsigned int rb;
+
     uart_init();
     hexstring(0x87654321);
     switch_to_mosc();
     hexstring(0x12345678);
 
+    while(1)
+    {
+        ra=uart_recv();
+        if(ra==0x0D) uart_send(0x0A);
+        uart_send(ra);
+    }
 
 }
 //------------------------------------------------------------------------

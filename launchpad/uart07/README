@@ -3,8 +3,9 @@ See top level README for more information about schematics and the
 datasheet for this microcontroller.  And information on how to load
 programs into the microcontroller.
 
-Derived from uart05
+Derived from uart06
 
 This is a skeleton for uart based programs.
 
-Boosts the processor to 80Mhz.
+The main (external) oscillator is used instead of the internal (for
+system not uart).

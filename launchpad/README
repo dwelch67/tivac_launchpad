@@ -79,3 +79,16 @@ I use gnu tools.
 I like that you can get at the target uart through the debug interface
 on linux /dev/ttyACM0, the uart examples exploit that, no other boards
 are needed basically to do more advanced development.
+
+
+
+blinker01  count to n based blinker default clock
+blinker02  systick based blinker default clock
+blinker03  systick using the rollover default clock
+uart01     blast characters default clock
+uart02     echo, skeleton for default clock
+uart03     timer0 example (blinker) default clock
+uart04     timer0 with two timers (blinker) default clock
+uart05     boosts to 80mhz crystal+pll
+uart06     echo, skeleton for 80mhz clock
+uart07     echo, skeleton for main oscillator (external 16MHz) clock
