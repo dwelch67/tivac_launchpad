@@ -30,9 +30,11 @@ extern unsigned int GET32 ( unsigned int );
 #define UARTCC   (UART0_BASE+0xFC8)
 
 #define SYSTEM_CONTROL 0x400FE000
+#define MISC (SYSTEM_CONTROL+0x58)
 #define RCC (SYSTEM_CONTROL+0x60)
 #define RCC2 (SYSTEM_CONTROL+0x70)
 #define RIS (SYSTEM_CONTROL+0x50)
+#define MOSCCTL (SYSTEM_CONTROL+0x7C)
 
 //------------------------------------------------------------------------
 void uart_init ( void )
@@ -121,6 +123,24 @@ void switch_to_80Mhz ( void )
     ra|=1<<11; //BYPASS
     ra&=~(1<<22); //USESYS
     PUT32(RCC,ra);
+
+//1.5 start up main oscillator
+
+    PUT32(MOSCCTL,3);
+
+    ra=GET32(RCC);
+    ra|=1<<11; //BYPASS
+    ra&=~(1<<22); //USESYS
+    PUT32(RCC,ra);
+
+    PUT32(MISC,1<<8);
+
+    ra=GET32(RCC);
+    ra&=~(1<<0); //MOSCDIS
+    PUT32(RCC,ra);
+
+    while(1) if(GET32(RIS)&(1<<8)) break;
+
 
 //2. Select the crystal value (XTAL) and oscillator source (OSCSRC),
 //and clear the PWRDN bit in RCC/RCC2. Setting the XTAL field
