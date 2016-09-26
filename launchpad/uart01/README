@@ -14,7 +14,7 @@ they control.  Basically they are also using that device for usb to
 serial so we dont need to have a separate usb to uart/serial in order
 to communicate with the device we control.
 
-I say the "main uart interface", well there are supposedly 8 uarts in
+It says the "main uart interface", well there are supposedly 8 uarts in
 this part!  If you look around in the GPIO register space you will see
 that PA[1:0] (GPIO ports/pins PA0 and PA1) are treated special on power
 up and reset.  This chart is seen in the GPIOAFSEL, GPIODEN and some

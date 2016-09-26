@@ -13,7 +13,7 @@ a stopwatch and figure out the clock rate for the timer.
 I hate it when they do this but the datasheet for the microcontroller
 says that there is a 16Mhz internal oscillator.  The schematics for the
 board show an external 16Mhz oscillator.  My experiment left here as
-an example uses the 24 systick timer set to run using the system clock
+an example uses the 24 bit systick timer set to run using the system clock
 (basically the Cortex-M4's clock).  I count to one million clock cycles
 160 times or basically 160,000,000 clock cycles (more than 24 bits
 thus the need to break it into multiple individual measurements), then
