@@ -21,6 +21,7 @@ void dummy ( unsigned int );
 #define SYST_CVR 0xE000E018
 #define SYST_CALIB 0xE000E01C
 
+#define WDTCTL   0x4000480C
 
 void delay ( void )
 {
@@ -36,6 +37,8 @@ void delay ( void )
 int notmain ( void )
 {
     unsigned int ra;
+
+    PUT16(WDTCTL,0x5A84); //stop WDT
 
     PUT8(PADIR_L,GET8(PADIR_L)|0x01);
 

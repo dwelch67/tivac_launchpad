@@ -15,4 +15,6 @@ million ticks per second.  Dumping regs it does appear that we are running
 off of DCO clock and it is set to 3MHz.  At least the as-shipped firmware
 that my board came with.
 
-
+Most of the examples assume you have run flash03, and when used to put
+a minimal program on flash.  As expected we are running at 3Mhz, DCO
+clock.  Takes 40 seconds for the led to change state.
