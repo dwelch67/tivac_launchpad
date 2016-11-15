@@ -8,4 +8,4 @@ Derived from uart06
 This is a skeleton for uart based programs.
 
 The main (external) oscillator is used instead of the internal (for
-system not uart).
+system not uart).  PLL is not used, runs at 16Mhz.  See uart06 for 80Mhz.
